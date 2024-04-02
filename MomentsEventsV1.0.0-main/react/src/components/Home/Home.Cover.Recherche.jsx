@@ -4,14 +4,48 @@ import { makeStyles } from '@mui/styles';
 import { TextField } from '@mui/material';
 import { Link, Typography } from '@mui/material';
 import theme from '../../theme';
+import { useState } from 'react';
 
 
 
 export default function BarreRecherche() {
+  const [dateRecherche, setDateRecherche] = useState("");
+  const [lieuRecherche, setLieuRecherche] = useState("");
+  const [typeRecherche, setTypeRecherche] = useState("");
+  const [modalOpen, setModalOpen] = useState(false);
+  const [disponibilites, setDisponibilites] = useState([]);
+  const rechercherDisponibilites = async () => {
+    try {
+      const params = {};
 
+
+      if (dateRecherche !== "") {
+        params.date = dateRecherche;
+      }
+      if (lieuRecherche !== "") {
+        params.lieu = lieuRecherche;
+      }
+      if (typeRecherche !== "") {
+        params.type = typeRecherche;
+      }
+  
+      const response = await axiosClient.get('/availabilities', { params });
+      
+  
+     
+      setDisponibilites(response.data);
+
+      handleOpenModal();
+    } catch (error) {
+      console.error('Erreur lors de la recherche des disponibilités:', error);
+    }
+  };
   const handleClick = () => {
-    alert('Méthode à implémenter ici.')
+    rechercherDisponibilites();
   }
+  const handleOpenModal = () => {
+    setModalOpen(true);
+  };
 
   return (
     <>
@@ -83,6 +117,8 @@ export default function BarreRecherche() {
                   id="rechercheOccasionType"
                   placeholder="Pour quelle occasion ?"
                   inputProps={theme.inputProps}
+                  value={typeRecherche}
+                  onChange={(e) => setTypeRecherche(e.target.value)}
                 />
               </Grid>
               <Grid
@@ -97,6 +133,8 @@ export default function BarreRecherche() {
                   type="date"
                   id="rechercheOccasionDate"
                   inputProps={theme.inputProps}
+                  value={dateRecherche}
+                  onChange={(e) => setDateRecherche(e.target.value)}
                 />
               </Grid>
               <Grid
@@ -112,6 +150,8 @@ export default function BarreRecherche() {
                   type='text'
                   placeholder="Lieu"
                   inputProps={theme.inputProps}
+                  value={lieuRecherche}
+                  onChange={(e) => setLieuRecherche(e.target.value)}
                 />
               </Grid>
 
@@ -135,6 +175,12 @@ export default function BarreRecherche() {
                 >Rechercher
                 </Button>
               </Grid>
+              {modalOpen && (
+                <DisponibilitesModal
+                  disponibilites={disponibilites}
+                  onClose={() => setModalOpen(false)}
+                />
+)}
             </Grid>
 
             <Grid

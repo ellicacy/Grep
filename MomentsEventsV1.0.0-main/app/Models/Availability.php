@@ -11,20 +11,11 @@ class Availability extends Model
     protected $dates = ['dateTime'];
     protected $fillable = [
         'id',
-        'idPrestataire',
         'dateTime',
         'idPrestation',
         'created_at',
         'updated_at'
     ];
-
-    /**
-     * La relation avec la classe User.
-     */
-    public function user()
-    {
-        return $this->belongsTo(User::class, 'idPersonne');
-    }
 
     /**
      * La relation avec la classe Prestation.

@@ -15,9 +15,6 @@ return new class extends Migration
     {
         Schema::create('availabilities', function (Blueprint $table) {
             $table->id();
-            // Ajoutez le champ idPersonne pour la relation avec User
-            $table->unsignedBigInteger('idPrestataire');
-            $table->foreign('idPrestataire')->references('idPersonne')->on('users');
             $table->unsignedBigInteger('idPrestation');
             $table->foreign('idPrestation')->references('id')->on('prestations');
             $table->dateTime('dateTime');

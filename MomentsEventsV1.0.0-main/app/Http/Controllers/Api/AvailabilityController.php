@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Availability;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class AvailabilityController extends Controller
 {
@@ -40,23 +41,26 @@ class AvailabilityController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
-    {
-        //return($request->all());
-        // Validation des données du formulaire
-        $request->validate([
-            'dateTime' => 'required|date',
-            // Ajoutez d'autres règles de validation au besoin
-        ]);
+{
+    // Convertir les données depuis le JSON
+    $data = json_decode($request->getContent(), true);
 
-        // Création d'une nouvelle disponibilité
-        $availability = new Availability();
-        $availability->dateTime = $request->dateTime;
-        $availability->idPrestation = $request->idPrestation;
-        $availability->save();
+    // Validation des données du formulaire
+    $validatedData = Validator::make($data, [
+        'dateTime' => 'required|date',
+        'idPrestation' => 'required|integer',
+        // Ajoutez d'autres champs si nécessaire
+    ])->validate();
 
+    // Création d'une nouvelle disponibilité
+    $availability = new Availability();
+    $availability->dateTime = $validatedData['dateTime'];
+    $availability->idPrestation = $validatedData['idPrestation'];
+    $availability->save();
 
-        return response()->json($availability, 201);
-    }
+    return response()->json($availability, 201);
+}
+
 
     /**
      * Display the specified resource.
@@ -90,7 +94,17 @@ class AvailabilityController extends Controller
     public function update(Request $request, Availability $availability)
     {
 
+        // Valider les données entrantes
+        $validatedData = $request->validate([
+            'dateTime' => 'required|date',
+            // Ajoutez d'autres champs si nécessaire
+        ]);
 
+        // Mettre à jour la disponibilité dans la base de données
+        $availability->update($validatedData);
+
+        // Rediriger l'utilisateur vers une page (par exemple, la page de détails de la disponibilité)
+        return redirect()->json($availability, 200);
     }
 
     /**
@@ -101,6 +115,10 @@ class AvailabilityController extends Controller
      */
     public function destroy(Availability $availability)
     {
-        //
+        // Supprimer la disponibilité de la base de données
+        $availability->delete();
+
+        // Rediriger l'utilisateur vers une page (par exemple, la page de liste des disponibilités)
+        return redirect()->json(null, 204);
     }
 }

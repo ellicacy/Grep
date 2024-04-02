@@ -38,6 +38,7 @@ const Calendar = () => {
     const openModal = (date) => {
         setSelectedDate(date);
         setModalIsOpen(true);
+        
     };
 
     const closeModal = () => {
@@ -119,22 +120,21 @@ const Calendar = () => {
             let newEvents = [];
             if (allDay) {
                 for (let i = 8; i < 24; i++) {
+
                     newEvents.push({
-                        title: "Dispo" + " - " + prestation,
                         date: `${selectedDate}T${i}:00`,
-                        prestation: prestation // Ajout du champ "prestation"
+                        title: "Dispo" + " - " + prestation,
+                        
                     });
                 }
             } else {
                 selectedTimes.forEach((time) => {
                     newEvents.push({
-                        title: "Dispo" + " - " + prestation,
                         date: `${selectedDate}T${time}`,
-                        prestation: prestation 
+                        title: "Dispo" + " - " + prestation,
                     });
                 });
             }
-    
             // Envoi de la requête à l'API pour enregistrer les disponibilités
             const response = await axiosClient.post('/availabilities', newEvents);
     
@@ -159,11 +159,18 @@ const Calendar = () => {
             try {
                 const prestataire = getPrestataire();
                 const id = prestataire.id;
+                console.log('ID du prestataire:', id);
                 // Obtenez les prestations associées au prestataire
                 const prestationAid = getPretation(id);
-                const response = await axiosClient.get(`/api/prestations`);
-                setPrestations(response.data);
-                console.log(response.data);
+                c // Récupérer toutes les prestations
+                const response = await axiosClient.get(`http://localhost:8000/api/prestations`);
+                const allPrestations = response.data;
+
+                // Filtrer les prestations associées au prestataire spécifique
+                const prestationsAssociees = allPrestations.filter(prestation => prestation.id_user === id);
+                console.log('Prestations récupérées:', allPrestations);
+                setPrestations(prestationsAssociees);
+                console.log(prestationsAssociees);
             } catch (error) {
                 console.error( 'Erreur lors du chargement de l\'ID du prestataire et des prestations:', error);
             }

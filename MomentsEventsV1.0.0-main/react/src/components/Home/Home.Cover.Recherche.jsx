@@ -17,13 +17,28 @@ export default function BarreRecherche() {
   const [typeRecherche, setTypeRecherche] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [disponibilites, setDisponibilites] = useState([]);
+  
   const rechercherDisponibilites = async () => {
     try {
       const params = {};
 
 
       if (dateRecherche !== "") {
-        params.date = dateRecherche;
+        // Vérifier si la date de recherche est de type journée
+        const date = new Date(dateRecherche);
+        const today = new Date();
+        if (date.getDate() === today.getDate() && date.getMonth() === today.getMonth() && date.getFullYear() === today.getFullYear()) {
+          // Si la date de recherche est le jour même, inclure les heures du jour
+          const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 0, 0, 0);
+          const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59);
+          params.date = {
+            $gte: startOfDay.toISOString(),
+            $lte: endOfDay.toISOString()
+          };
+        } else {
+          // Sinon, utiliser simplement la date fournie
+          params.date = dateRecherche;
+        }
       }
       if (lieuRecherche !== "") {
         params.lieu = lieuRecherche;
@@ -32,8 +47,9 @@ export default function BarreRecherche() {
         params.type = typeRecherche;
       }
   
+      console.log('Recherche des disponibilités avec les paramètres:', params);
       const response = await axiosClient.get('/availabilities', { params });
-      
+      console.log('Disponibilités trouvées:', response.data);
   
      
       setDisponibilites(response.data);

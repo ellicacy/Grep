@@ -20,6 +20,7 @@ import "../../index.css"
 import functions from '../../apifunction/PrestationsApi.jsx'; 
 import getPrestataire from '../../views/Prestataire/Prestataire.jsx';
 import { set } from "lodash";
+import { id } from "date-fns/locale";
 
 
 const Calendar = () => {
@@ -133,16 +134,20 @@ const Calendar = () => {
 
         try {
             let newEvents = [];
+            prestationId = 1;
+            console.log(prestation.id);
             if (allDay) {
                 for (let i = 8; i < 24; i++) {
                     newEvents.push({
                         dateTime: format(new Date(`${selectedDate}T${i}:00`), "yyyy-MM-dd'T'HH:mm:ss"),
+                        idPrestation: prestationId,
                     });
                 }
             } else {
                 selectedTimes.forEach((time) => {
                     newEvents.push({
                         dateTime: format(new Date(`${selectedDate}T${time}:00`), "yyyy-MM-dd'T'HH:mm:ss"),
+                        idPrestation: prestationId,
                     });
                 });
             }
@@ -150,7 +155,7 @@ const Calendar = () => {
             console.log(newEvents);
             const dateTimeArray = newEvents.map(event => event.dateTime);
             console.log(dateTimeArray);
-            const response = await axiosClient.post('/availabilities', { dateTime: dateTimeArray });
+            const response = await axiosClient.post('/availabilities', { dateTime: dateTimeArray }, { idPrestation: prestationId });
             console.log(response.data); // Process or log the response as needed
             
             // Vérification de la réponse de l'API

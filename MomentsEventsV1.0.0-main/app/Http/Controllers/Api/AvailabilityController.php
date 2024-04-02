@@ -41,20 +41,19 @@ class AvailabilityController extends Controller
      */
     public function store(Request $request)
     {
-        return($request->all());
+        //return($request->all());
         // Validation des données du formulaire
         $request->validate([
-            'availability' => 'required|date',
+            'dateTime' => 'required|date',
             // Ajoutez d'autres règles de validation au besoin
         ]);
 
+        // Création d'une nouvelle disponibilité
+        $availability = new Availability();
+        $availability->dateTime = $request->dateTime;
+        $availability->idPrestation = $request->idPrestation;
+        $availability->save();
 
-        // Création de la disponibilité
-        $availability = Availability::create([
-            'availability' => $request->input('availability'),
-            'idPersonne' => auth()->user()->id, // Remplacez ceci par la manière dont vous obtenez l'id de l'utilisateur
-            // Ajoutez d'autres champs au besoin
-        ]);
 
         return response()->json($availability, 201);
     }
@@ -90,7 +89,8 @@ class AvailabilityController extends Controller
      */
     public function update(Request $request, Availability $availability)
     {
-        //
+
+
     }
 
     /**

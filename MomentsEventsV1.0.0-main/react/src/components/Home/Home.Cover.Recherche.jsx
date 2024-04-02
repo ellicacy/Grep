@@ -52,6 +52,7 @@ export default function BarreRecherche() {
       console.log('Disponibilités trouvées:', response.data);
   
      
+      console.log('Disponibilités trouvées:', response.data); 
       setDisponibilites(response.data);
 
       handleOpenModal();

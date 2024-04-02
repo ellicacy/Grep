@@ -614,4 +614,10 @@ Route::post('/testPmt', function (Request $req) {
 
 // #########################################################################
 // MOMENTS EVENTS
+
+
+Route::middleware(['auth:sanctum', 'isPrestataire'])->group(function () { // Utilisation du middleware de MomentsEvent
+
+});
 Route::apiResource('availabilities', AvailabilityController::class);
+Route::get('/user/{id}/prestations', [App\Http\Controllers\API\PrestationController::class, 'getPrestationsByUser']);

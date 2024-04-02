@@ -83,7 +83,7 @@ class PrestationController extends Controller
     public function show(Prestation $prestation)
     {
         $prestation = Prestation::find($prestation)->first();
-        // dd($prestation);        
+        // dd($prestation);
         if (!$prestation) {
             return response([
                 'message' => 'No prestation with id ('.$prestation->id.') found ...'
@@ -193,7 +193,7 @@ class PrestationController extends Controller
             Prestation::with('categories')->find($prestation)->categories()->attach($id);
         }
         // $presta = PrestationNew::with('categories')->find($prestation);
-        
+
         return response([
             'message'=>'Categories attachees'
         ], 201);
@@ -216,7 +216,7 @@ class PrestationController extends Controller
             Prestation::with('packs')->find($prestation)->packs()->attach($id);
         }
         // $presta = PrestationNew::with('categories')->find($prestation);
-        
+
         return response([
             'message'=>'Packs attachees'
         ], 201);
@@ -380,5 +380,17 @@ class PrestationController extends Controller
         // return response([
         //     'prestation'=> $prestation,
         // ], 200);
+    }
+
+    /*
+    *   Moments Events
+    *   Get prestations by user
+    *   @param Request $request
+    *   @param $id
+    */
+    public function getPrestationsByUser(Request $request, $id)
+    {
+        $prestations = DB::table('prestations')->where('id_user', $id)->get();
+        return response()->json($prestations);
     }
 }

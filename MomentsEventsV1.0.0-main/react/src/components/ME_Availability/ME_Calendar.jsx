@@ -1,15 +1,24 @@
 {
     /* #MomentsEvent */
 }
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 
+
+import frLocale from '@fullcalendar/core/locales/fr';
+
+import ModifEvent from './ModifEvent';
+
 import axiosClient from '../../axios-client'
 
 import Modal from "react-modal";
+import "../../index.css"
+import functions from '../../apifunction/PrestationsApi.jsx'; 
+import getPrestataire from '../../views/Prestataire/Prestataire.jsx';
+
 
 const Calendar = () => {
     const [events, setEvents] = useState([]);
@@ -18,6 +27,13 @@ const Calendar = () => {
     const [allDay, setAllDay] = useState(true);
     const [selectedTimes, setSelectedTimes] = useState([]);
     const [showTimeDropdown, setShowTimeDropdown] = useState(false);
+    const [selectedEvent, setSelectedEvent] = useState(null);
+    const [modifEventModalIsOpen, setModifEventModalIsOpen] = useState(false);
+    const [prestations, setPrestations] = useState([]);
+    const [prestationId, setPrestationId] = useState('');
+    const [prestataireId, setPrestataireId] = useState('');
+    const [prestation, setPrestation] = useState('');
+
 
     const openModal = (date) => {
         setSelectedDate(date);
@@ -27,15 +43,62 @@ const Calendar = () => {
     const closeModal = () => {
         setModalIsOpen(false);
     };
+    const openModifEventModal = () => {
+        setModifEventModalIsOpen(true);
+    };
+
+    const closeModifEventModal = () => {
+        setModifEventModalIsOpen(false);
+    };
 
     const handleEventClick = (info) => {
-        alert(`Clicked on event: ${info.event.title}`);
+        setSelectedEvent(info.event);
+        openModifEventModal(true);
     };
 
     const handleDateClick = (info) => {
+        
         if (!modalIsOpen && info.date > new Date()) {
-            openModal(info.dateStr);
+        const clickedDate = info.dateStr;
+        
+        // Vérifier si un événement existe déjà à l'heure sélectionnée
+        const existingEvent = events.find(event => {
+            const eventDate = new Date(event.date);
+            return eventDate.getTime() === info.date.getTime();
+        });
+
+        if (existingEvent) {
+            // Si un événement existe, demandez à l'utilisateur de confirmer la suppression
+            if (window.confirm("Voulez-vous supprimer cette disponibilité ?")) {
+                // Supprimez l'événement du state et de la base de données
+                handleConfirmDelete(existingEvent);
+            }
+        } else {
+            // Si aucun événement n'existe, ouvrez le modal pour ajouter une disponibilité
+            openModal(clickedDate);
         }
+    }
+    };
+    const handleConfirmDelete = () => {
+        if (selectedEvent) {
+            // Supprimer l'événement sélectionné de l'état des événements
+            const updatedEvents = events.filter(event => event.id !== selectedEvent.id);
+            setEvents(updatedEvents);
+            closeModifEventModal()
+    
+            // Code pour supprimer l'événement de la base de données ou d'où vous stockez vos données
+            // axios.delete(`/events/${selectedEvent.id}`).then(response => {
+            //    console.log("Événement supprimé :", selectedEvent);
+            // }).catch(error => {
+            //    console.error("Erreur lors de la suppression de l'événement :", error);
+            // });
+        }
+
+        closeModifEventModal();
+    };
+    
+    const handleCancelDelete = () => {
+        closeModifEventModal();
     };
 
     const customDayRender = ({ date, dayEl }) => {
@@ -45,63 +108,74 @@ const Calendar = () => {
         if (date < today) {
             dayEl.style.backgroundColor = "#f2f2f2";
             dayEl.style.pointerEvents = "none";
+            // show dates in the past as disabled
+            
+
         }
     };
 
     const handleConfirm = async () => {
-        let newEvent = {};
-        if (allDay) {
-            /*newEvent = {
-                title: "Disponible",
-                date: selectedDate,
-                allDay: allDay,
-            };*/
-
-            // Créer une liste d'événements pour chaque heure de la journée
-            let newEvents = {};
-            for (let i = 0; i < 24; i++) {
-                newEvents.push({
-                    title: "Disponible",
-                    date: `${selectedDate}T${i}:00`,
+        try {
+            let newEvents = [];
+            if (allDay) {
+                for (let i = 8; i < 24; i++) {
+                    newEvents.push({
+                        title: "Dispo" + " - " + prestation,
+                        date: `${selectedDate}T${i}:00`,
+                        prestation: prestation // Ajout du champ "prestation"
+                    });
+                }
+            } else {
+                selectedTimes.forEach((time) => {
+                    newEvents.push({
+                        title: "Dispo" + " - " + prestation,
+                        date: `${selectedDate}T${time}`,
+                        prestation: prestation 
+                    });
                 });
             }
-
-            // Faire appel vers l'API Laravel pour enregistrer les disponibilités
-            await axiosClient.post('/availabilities', newEvents);
-
-            // Ajoute le nouvel événement au state
-            setEvents([...events, ...newEvents]);
-
-
-        } else {
-            newEvent = selectedTimes.map((time) => ({
-                title: "Disponible",
-                availability: `${selectedDate}T${time}`,
-            }));
-
-            // Faire appel vers l'API Laravel pour enregistrer les disponibilités
-            await axiosClient.post('/availabilities', newEvent);
-
-
-             // Ajoute le nouvel événement au state
-             setEvents([...events, ...newEvent]);
-        }
-
-        try {
-
-
-
+    
+            // Envoi de la requête à l'API pour enregistrer les disponibilités
+            const response = await axiosClient.post('/availabilities', newEvents);
+    
+            // Vérification de la réponse de l'API
+            if (response.status === 200) {
+                // Si la réponse est réussie, mettre à jour les événements dans le state
+                setEvents([...events, ...newEvents]);
+            } else {
+                // Si la réponse échoue, afficher un message d'erreur
+                console.error('Erreur lors de l\'enregistrement de la disponibilité:', response.statusText);
+            }
+    
+            // Fermer le modal
+            closeModal();
         } catch (error) {
             console.error('Erreur lors de l\'enregistrement de la disponibilité :', error);
         }
-
-        closeModal();
     };
 
+    useEffect(() => {
+        const fetchPrestataireAndPrestations = async () => {
+            try {
+                const prestataire = getPrestataire();
+                const id = prestataire.id;
+                // Obtenez les prestations associées au prestataire
+                const prestationAid = getPretation(id);
+                const response = await axiosClient.get(`/api/prestations`);
+                setPrestations(response.data);
+                console.log(response.data);
+            } catch (error) {
+                console.error( 'Erreur lors du chargement de l\'ID du prestataire et des prestations:', error);
+            }
+        };
+
+        // Appelez la fonction pour charger l'ID du prestataire et les prestations associées
+        fetchPrestataireAndPrestations();
+    }, []);
 
     return (
         <div>
-            <h1>Mes disponibilitées</h1>
+            
             <FullCalendar
                 plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
                 events={events}
@@ -112,8 +186,9 @@ const Calendar = () => {
                     start: new Date(),
                 }}
                 dayRender={customDayRender}
+                locales={[frLocale]}
             />
-
+            
             <Modal
                 isOpen={modalIsOpen}
                 onRequestClose={closeModal}
@@ -140,12 +215,30 @@ const Calendar = () => {
                         borderRadius: "4px",
                         outline: "none",
                         padding: "20px",
+                        width: "auto",
+
                     },
                 }}
             >
                 <h2>Créer un événement</h2>
                 <p>Date sélectionnée: {selectedDate}</p>
-
+                <label>
+                    Prestation:
+                    <select
+                        id="prestation"
+                        value={prestationId}
+                        onChange={(e) => setPrestationId(e.target.value)}
+                        style={{ width: "auto", height: "25px", marginLeft: "10px"}}
+                    >
+                        <option value="">Sélectionnez une prestation</option>
+                        // Récupérer les prestations de l'utilisateur connecté
+                        {prestations.map((prestation) => (
+                            <option key={prestation.id} value={prestation.id}>
+                                {prestation.nom}
+                            </option>
+                        ))}
+                    </select>
+                </label>
                 <label>
                     <input
                         type="radio"
@@ -209,6 +302,24 @@ const Calendar = () => {
                 <button onClick={handleConfirm}>Confirmer</button>
                 <button onClick={closeModal}>Annuler</button>
             </Modal>
+            
+            <ModifEvent
+                isOpen={modifEventModalIsOpen}
+                onRequestClose={closeModifEventModal}
+                selectedEvent={selectedEvent}
+                handleConfirmDelete={handleConfirmDelete}
+                handleCancelDelete={handleCancelDelete}
+                allDay={allDay}
+                setAllDay={setAllDay}
+                setSelectedTimes={setSelectedTimes}
+                selectedDate={selectedDate}
+                selectedTimes={selectedTimes}
+                showTimeDropdown={showTimeDropdown}
+                prestations={prestation}
+            />
+           
+
+            
         </div>
     );
 };

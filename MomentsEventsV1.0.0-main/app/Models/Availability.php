@@ -8,11 +8,12 @@ use Illuminate\Database\Eloquent\Model;
 class Availability extends Model
 {
     use HasFactory;
-    protected $dates = ['availability'];
+    protected $dates = ['dateTime'];
     protected $fillable = [
         'id',
-        'idPersonne',
-        'availability',
+        'idPrestataire',
+        'dateTime',
+        'idPrestation',
         'created_at',
         'updated_at'
     ];
@@ -23,5 +24,12 @@ class Availability extends Model
     public function user()
     {
         return $this->belongsTo(User::class, 'idPersonne');
+    }
+
+    /**
+     * La relation avec la classe Prestation.
+     */
+    public function prestation(){
+        return $this->belongsTo(Prestation::class, 'idPrestation');
     }
 }

@@ -134,15 +134,16 @@ const Calendar = () => {
 
         try {
             let newEvents = [];
-            prestationId = 1;
+            let prestationId = 1;
             console.log(prestation.id);
             if (allDay) {
-                for (let i = 8; i < 24; i++) {
+                for (let i = 7; i < 24; i++) {
                     newEvents.push({
-                        dateTime: format(new Date(`${selectedDate}T${i}:00`), "yyyy-MM-dd'T'HH:mm:ss"),
+                        dateTime: format(new Date(`${selectedDate}T${i.toString().padStart(2, '0')}:00:00`), "yyyy-MM-dd'T'HH:mm:ss"),
                         idPrestation: prestationId,
                     });
                 }
+                console.log(newEvents);
             } else {
                 selectedTimes.forEach((time) => {
                     newEvents.push({
@@ -152,20 +153,22 @@ const Calendar = () => {
                 });
             }
             
-            console.log(newEvents);
-            const dateTimeArray = newEvents.map(event => event.dateTime);
-            console.log(dateTimeArray);
-            const response = await axiosClient.post('/availabilities', { dateTime: dateTimeArray }, { idPrestation: prestationId });
-            console.log(response.data); // Process or log the response as needed
-            
-            // Vérification de la réponse de l'API
-            if (response.status === 200) {
-                // Si la réponse est réussie, mettre à jour les événements dans le state
-                setEvents([...events, ...newEvents]);
-            } else {
-                // Si la réponse échoue, afficher un message d'erreur
-                console.error('Erreur lors de l\'enregistrement de la disponibilité:', response.statusText);
+            console.log(newEvents)
+
+           
+
+            for (let i = 0; i < newEvents.length; i++) {
+                const response = await axiosClient.post('/availabilities', newEvents[i]);
+                console.log(response.data); // Process or log the response as needed
+                if (response.status === 201) {
+                    // Si la réponse est réussie, mettre à jour les événements dans le state
+                    setEvents([...events, newEvents[i]]);
+                } else {
+                    // Si la réponse échoue, afficher un message d'erreur
+                    console.error('Erreur lors de l\'enregistrement de la disponibilité:', response.statusText);
+                }
             }
+            
     
             // Fermer le modal
             closeModal();

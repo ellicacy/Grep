@@ -6,6 +6,7 @@ import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
+import { format } from 'date-fns';
 
 
 import frLocale from '@fullcalendar/core/locales/fr';
@@ -18,6 +19,7 @@ import Modal from "react-modal";
 import "../../index.css"
 import functions from '../../apifunction/PrestationsApi.jsx'; 
 import getPrestataire from '../../views/Prestataire/Prestataire.jsx';
+import { set } from "lodash";
 
 
 const Calendar = () => {
@@ -33,8 +35,20 @@ const Calendar = () => {
     const [prestationId, setPrestationId] = useState('');
     const [prestataireId, setPrestataireId] = useState('');
     const [prestation, setPrestation] = useState('');
-
-
+    const [isMounted, setIsMounted] = useState(false);
+    
+    const fetchPrestations = async () => {
+        try {
+            const userID = getPrestataire();
+            console.log(userID);
+            const prestations = await axiosClient.get(`/prestations`);
+            const prestationData = prestations.data;
+            setPrestations(prestationData);
+            console.log(prestationData);
+        } catch (error) {
+            console.error('Erreur lors de la récupération des prestations:', error);
+        }
+    };
     const openModal = (date) => {
         setSelectedDate(date);
         setModalIsOpen(true);
@@ -116,28 +130,29 @@ const Calendar = () => {
     };
 
     const handleConfirm = async () => {
+
         try {
             let newEvents = [];
             if (allDay) {
                 for (let i = 8; i < 24; i++) {
-
                     newEvents.push({
-                        date: `${selectedDate}T${i}:00`,
-                        title: "Dispo" + " - " + prestation,
-                        
+                        dateTime: format(new Date(`${selectedDate}T${i}:00`), "yyyy-MM-dd'T'HH:mm:ss"),
                     });
                 }
             } else {
                 selectedTimes.forEach((time) => {
                     newEvents.push({
-                        date: `${selectedDate}T${time}`,
-                        title: "Dispo" + " - " + prestation,
+                        dateTime: format(new Date(`${selectedDate}T${time}:00`), "yyyy-MM-dd'T'HH:mm:ss"),
                     });
                 });
             }
-            // Envoi de la requête à l'API pour enregistrer les disponibilités
-            const response = await axiosClient.post('/availabilities', newEvents);
-    
+            
+            console.log(newEvents);
+            const dateTimeArray = newEvents.map(event => event.dateTime);
+            console.log(dateTimeArray);
+            const response = await axiosClient.post('/availabilities', { dateTime: dateTimeArray });
+            console.log(response.data); // Process or log the response as needed
+            
             // Vérification de la réponse de l'API
             if (response.status === 200) {
                 // Si la réponse est réussie, mettre à jour les événements dans le state
@@ -150,35 +165,32 @@ const Calendar = () => {
             // Fermer le modal
             closeModal();
         } catch (error) {
+            if (error.response) {
+                // The request was made and the server responded with a status code
+                // that falls out of the range of 2xx
+                console.error('Error data:', error.response.data);
+                console.error('Error status:', error.response.status);
+                console.error('Error headers:', error.response.headers);
+            } else if (error.request) {
+                // The request was made but no response was received
+                console.error('Error request:', error.request);
+            } else {
+                // Something happened in setting up the request that triggered an Error
+                console.error('Error message:', error.message);
+            }
             console.error('Erreur lors de l\'enregistrement de la disponibilité :', error);
         }
     };
 
     useEffect(() => {
-        const fetchPrestataireAndPrestations = async () => {
-            try {
-                const prestataire = getPrestataire();
-                const id = prestataire.id;
-                console.log('ID du prestataire:', id);
-                // Obtenez les prestations associées au prestataire
-                const prestationAid = getPretation(id);
-                c // Récupérer toutes les prestations
-                const response = await axiosClient.get(`http://localhost:8000/api/prestations`);
-                const allPrestations = response.data;
+        !isMounted &&
+            axiosClient.get('/prestations').then((response) => {
+                setPrestations(response.data);
+                setIsMounted(true);
+            });
+    }
+    , [isMounted]);
 
-                // Filtrer les prestations associées au prestataire spécifique
-                const prestationsAssociees = allPrestations.filter(prestation => prestation.id_user === id);
-                console.log('Prestations récupérées:', allPrestations);
-                setPrestations(prestationsAssociees);
-                console.log(prestationsAssociees);
-            } catch (error) {
-                console.error( 'Erreur lors du chargement de l\'ID du prestataire et des prestations:', error);
-            }
-        };
-
-        // Appelez la fonction pour charger l'ID du prestataire et les prestations associées
-        fetchPrestataireAndPrestations();
-    }, []);
 
     return (
         <div>

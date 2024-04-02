@@ -76,7 +76,7 @@ export default function DashboardClient() {
         axiosClient.get('/user/avatar')
             .then(response => {
                 setAvatarUrl(response.data.avatar_url);
-                console.log(avatarUrl);
+                //console.log(avatarUrl);
             })
             .catch(error => {
                 const errorMessage = error.response?.data?.message || 'Une erreur inconnue s\'est produite pendant le chargement de votre avatar.';

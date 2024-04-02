@@ -1,0 +1,1 @@
+INSERT INTO 'availabilities' (id, idPrestation, dateTime) VALUES (2, 1, '2024-04-09T08:00:00')

@@ -52,6 +52,16 @@ class AvailabilityController extends Controller
         // Ajoutez d'autres champs si nécessaire
     ])->validate();
 
+    // Vérifier si une disponibilité similaire existe déjà
+    $existingAvailability = Availability::where('dateTime', $validatedData['dateTime'])
+        ->where('idPrestation', $validatedData['idPrestation'])
+        ->first();
+
+    if ($existingAvailability) {
+        // Retourner une erreur si la disponibilité existe déjà
+        return response()->json(['error' => 'Cette disponibilité existe déjà.'], 409);
+    }
+
     // Création d'une nouvelle disponibilité
     $availability = new Availability();
     $availability->dateTime = $validatedData['dateTime'];
@@ -119,6 +129,6 @@ class AvailabilityController extends Controller
         $availability->delete();
 
         // Rediriger l'utilisateur vers une page (par exemple, la page de liste des disponibilités)
-        return redirect()->json(null, 204);
+        return response()->json(['message' => 'Disponibilité supprimée avec succès'], 200);
     }
 }

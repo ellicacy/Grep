@@ -5,7 +5,6 @@ import Modal from "react-modal";
 const ModifEvent = ({
     isOpen,
     onRequestClose,
-    selectedEvent,
     handleConfirmDelete,
     handleCancelDelete,
     allDay,
@@ -14,12 +13,14 @@ const ModifEvent = ({
     selectedDate,
     selectedTimes,
     showTimeDropdown,
+    setShowTimeDropdown,
     prestations,
   }) => {
     
     return (
         <Modal
             isOpen={isOpen}
+            selectedDate={selectedDate}
             onRequestClose={onRequestClose}
             contentLabel="Supprimer disponibilité"
             style={{
@@ -56,7 +57,10 @@ const ModifEvent = ({
                     type="radio"
                     name="eventTime"
                     checked={allDay}
-                    onChange={() => setAllDay(true)}
+                    onChange={() => {
+                        setAllDay(false);
+                        setShowTimeDropdown(false);
+                    }}
                 />
             </label>
             <label>

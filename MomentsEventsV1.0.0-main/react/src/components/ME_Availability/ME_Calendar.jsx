@@ -7,23 +7,15 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import { format } from 'date-fns';
-
-
 import frLocale from '@fullcalendar/core/locales/fr';
-
 import ModifEvent from './ModifEvent';
-
 import axiosClient from '../../axios-client'
-
 import Modal from "react-modal";
 import "../../index.css"
-import functions from '../../apifunction/PrestationsApi.jsx'; 
-import getPrestataire from '../../views/Prestataire/Prestataire.jsx';
-import { set } from "lodash";
-import { id } from "date-fns/locale";
-
+import { all } from "axios";
 
 const Calendar = () => {
+    
     const [events, setEvents] = useState([]);
     const [modalIsOpen, setModalIsOpen] = useState(false);
     const [selectedDate, setSelectedDate] = useState("");
@@ -34,31 +26,18 @@ const Calendar = () => {
     const [modifEventModalIsOpen, setModifEventModalIsOpen] = useState(false);
     const [prestations, setPrestations] = useState([]);
     const [prestationId, setPrestationId] = useState('');
-    const [prestataireId, setPrestataireId] = useState('');
     const [prestation, setPrestation] = useState('');
     const [isMounted, setIsMounted] = useState(false);
     
-    const fetchPrestations = async () => {
-        try {
-            const userID = getPrestataire();
-            console.log(userID);
-            const prestations = await axiosClient.get(`/prestations`);
-            const prestationData = prestations.data;
-            setPrestations(prestationData);
-            console.log(prestationData);
-        } catch (error) {
-            console.error('Erreur lors de la récupération des prestations:', error);
-        }
-    };
     const openModal = (date) => {
         setSelectedDate(date);
         setModalIsOpen(true);
-        
     };
 
     const closeModal = () => {
         setModalIsOpen(false);
     };
+
     const openModifEventModal = () => {
         setModifEventModalIsOpen(true);
     };
@@ -68,8 +47,26 @@ const Calendar = () => {
     };
 
     const handleEventClick = (info) => {
-        setSelectedEvent(info.event);
-        openModifEventModal(true);
+        // Récupérer l'événement sélectionné
+        const selectedEvent = info.event;
+    
+        // Afficher les données de l'événement dans la console pour le débogage
+        console.log('Événement sélectionné:', selectedEvent);
+    
+        // Filtrer l'événement sélectionné de la liste des événements
+        const updatedEvents = events.filter(event => event.id !== selectedEvent.id);
+    
+        // Mettre à jour l'état des événements avec la liste filtrée
+        setEvents(updatedEvents);
+    
+        // Supprimer l'événement côté serveur (utilisez axiosClient.delete)
+        axiosClient.delete(`/availabilities/${selectedEvent.id}`)
+            .then(response => {
+                console.log('Événement supprimé côté serveur:', response.data);
+            })
+            .catch(error => {
+                console.error('Erreur lors de la suppression de l\'événement côté serveur:', error);
+            });
     };
 
     const handleDateClick = (info) => {
@@ -95,21 +92,55 @@ const Calendar = () => {
         }
     }
     };
-    const handleConfirmDelete = () => {
-        if (selectedEvent) {
-            // Supprimer l'événement sélectionné de l'état des événements
-            const updatedEvents = events.filter(event => event.id !== selectedEvent.id);
-            setEvents(updatedEvents);
-            closeModifEventModal()
     
-            // Code pour supprimer l'événement de la base de données ou d'où vous stockez vos données
-            // axios.delete(`/events/${selectedEvent.id}`).then(response => {
-            //    console.log("Événement supprimé :", selectedEvent);
-            // }).catch(error => {
-            //    console.error("Erreur lors de la suppression de l'événement :", error);
-            // });
-        }
+    const handleConfirmDelete = async () => {
+        console.log('entrer dans evenement a effacer');
+        try {
+            if (allDay) {
+                for (let i = 7; i < 24; i++) {
+                    const eventToDelete = events.find(event => {
+                        const eventDate = new Date(event.dateTime);
+                        return eventDate.getTime() === new Date(`${selectedDate}T${i.toString().padStart(2, '0')}:00:00`).getTime();
+                    });
+                    console.log('evenement a effacer'+ eventToDelete);
+                    if (eventToDelete) {
+                        const response = await axiosClient.delete(`/availabilities/${eventToDelete.id}`);
+                        if (response.status === 204) {
+                            // Si la réponse est réussie, mettre à jour les événements dans le state
+                            setEvents(events => events.filter(event => event.id !== eventToDelete.id));
+                        } else {
+                            // Si la réponse échoue, afficher un message d'erreur
+                            console.error('Erreur lors de la suppression de la disponibilité:', response.statusText);
+                        }
+                    }
+                }
+            } else {
+                console.log('entrer dans evenement a effacer par heure');
+                console.log(selectedTimes);
 
+                selectedTimes.forEach(async time => {
+                    const eventToDelete = events.find(event => {
+                        const eventDate = new Date(event.dateTime);
+                        
+                        return eventDate.getTime() === new Date(`${selectedDate}T${time}:00`).getTime();
+                    });
+                    console.log('evenement a effacer '+ eventToDelete);
+                    if (eventToDelete) {
+                        const response = await axiosClient.delete(`/availabilities/${eventToDelete.id}`);
+                        if (response.status === 204) {
+                            // Si la réponse est réussie, mettre à jour les événements dans le state
+                            setEvents(events => events.filter(event => event.id !== eventToDelete.id));
+                        } else {
+                            // Si la réponse échoue, afficher un message d'erreur
+                            console.error('Erreur lors de la suppression de la disponibilité:', response.statusText);
+                        }
+                    }
+                });
+            }
+        } catch (error) {
+            // Gérer les erreurs
+            console.error('Erreur lors de la suppression de la disponibilité :', error);
+        }
         closeModifEventModal();
     };
     
@@ -121,26 +152,30 @@ const Calendar = () => {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
+        // Désactivez les jours passés
         if (date < today) {
             dayEl.style.backgroundColor = "#f2f2f2";
             dayEl.style.pointerEvents = "none";
-            // show dates in the past as disabled
-            
-
         }
     };
 
     const handleConfirm = async () => {
 
         try {
+            if (!prestationId) {
+                // Affichez un message d'erreur sur la fenetre
+                alert('Veuillez sélectionner une prestation');
+                return; 
+            }
             let newEvents = [];
-            let prestationId = 1;
-            console.log(prestation.id);
+            let prestaId = prestationId;
+            console.log(prestaId);
+            // Créer un tableau d'événements pour chaque heure sélectionnée
             if (allDay) {
                 for (let i = 7; i < 24; i++) {
                     newEvents.push({
                         dateTime: format(new Date(`${selectedDate}T${i.toString().padStart(2, '0')}:00:00`), "yyyy-MM-dd'T'HH:mm:ss"),
-                        idPrestation: prestationId,
+                        idPrestation: prestaId,
                     });
                 }
                 console.log(newEvents);
@@ -156,13 +191,19 @@ const Calendar = () => {
             console.log(newEvents)
 
            
-
+            // Enregistrer les événements dans la base de données
             for (let i = 0; i < newEvents.length; i++) {
                 const response = await axiosClient.post('/availabilities', newEvents[i]);
                 console.log(response.data); // Process or log the response as needed
                 if (response.status === 201) {
                     // Si la réponse est réussie, mettre à jour les événements dans le state
-                    setEvents([...events, newEvents[i]]);
+                    const addedAvailability = response.data; // Si votre backend renvoie les nouvelles disponibilités ajoutées
+                    setEvents([...events, addedAvailability]);
+                    // recuper directement les disponibilités mais trop de requetes a la fois
+                    //fetchData();
+                } else if (response.status === 409) {
+                    // Si le statut est 409 (conflit), afficher une alerte spécifique
+                    alert('Une disponibilité similaire existe déjà.');
                 } else {
                     // Si la réponse échoue, afficher un message d'erreur
                     console.error('Erreur lors de l\'enregistrement de la disponibilité:', response.statusText);
@@ -174,28 +215,49 @@ const Calendar = () => {
             closeModal();
         } catch (error) {
             if (error.response) {
-                // The request was made and the server responded with a status code
-                // that falls out of the range of 2xx
+                
                 console.error('Error data:', error.response.data);
                 console.error('Error status:', error.response.status);
                 console.error('Error headers:', error.response.headers);
             } else if (error.request) {
-                // The request was made but no response was received
+                // La requête a été faite mais pas de réponse
                 console.error('Error request:', error.request);
             } else {
-                // Something happened in setting up the request that triggered an Error
+                // Quelque chose s'est passé dans la configuration de la requête
                 console.error('Error message:', error.message);
             }
             console.error('Erreur lors de l\'enregistrement de la disponibilité :', error);
         }
     };
+    const fetchData = async () => {
+        try {
+            // Récupérer les prestations de la base de données
+            const prestationsResponse = await axiosClient.get('/prestations');
+            setPrestations(prestationsResponse.data);
 
+            // Récupérer les disponibilités de la base de données
+            const availabilitiesResponse = await axiosClient.get('/availabilities');
+            const availabilities = availabilitiesResponse.data;
+
+            // Formater les disponibilités dans le format attendu par FullCalendar
+            const formattedEvents = availabilities.map(availability => ({
+                title: prestationsResponse.data.find(prestation => prestation.id === availability.idPrestation).nom,
+                start: availability.dateTime, 
+            }));
+            console.log(formattedEvents);
+            // Mettre à jour l'état events avec les disponibilités récupérées
+            setEvents(formattedEvents);
+        } catch (error) {
+            console.error('Erreur lors de la récupération des données:', error);
+        }
+    };
     useEffect(() => {
-        !isMounted &&
-            axiosClient.get('/prestations').then((response) => {
-                setPrestations(response.data);
-                setIsMounted(true);
-            });
+
+        // Récupérer les prestations de la base de données
+       if (!isMounted) {
+        fetchData();
+        setIsMounted(true);
+    }
     }
     , [isMounted]);
 
@@ -214,6 +276,7 @@ const Calendar = () => {
                 }}
                 dayRender={customDayRender}
                 locales={[frLocale]}
+                timeZone="Europe/Paris"
             />
             
             <Modal
@@ -266,15 +329,21 @@ const Calendar = () => {
                         ))}
                     </select>
                 </label>
+                <div  style={{ display: 'flex', alignItems: 'center' }}>
                 <label>
                     <input
                         type="radio"
                         name="eventTime"
                         checked={allDay}
-                        onChange={() => setAllDay(true)}
+                        onChange={() => {
+                            setAllDay(true);
+                            setShowTimeDropdown(false);
+                        }}
                     />
                     Journée entière
                 </label>
+                </div>
+                <div style={{display: 'flex'}} >
                 <label>
                     <input
                         type="radio"
@@ -285,11 +354,11 @@ const Calendar = () => {
                             setShowTimeDropdown(true);
                         }}
                     />
-                    Heure spécifique
+                    Heure spécifique:  
                 </label>
                 {showTimeDropdown && (
                     <label>
-                        Heure :
+                       
                         <select
                             multiple
                             value={selectedTimes}
@@ -324,6 +393,7 @@ const Calendar = () => {
                         </select>
                     </label>
                 )}
+                </div>
                 <br />
                 <br />
                 <button onClick={handleConfirm}>Confirmer</button>
@@ -342,6 +412,7 @@ const Calendar = () => {
                 selectedDate={selectedDate}
                 selectedTimes={selectedTimes}
                 showTimeDropdown={showTimeDropdown}
+                setShowTimeDropdown={setShowTimeDropdown}
                 prestations={prestation}
             />
            

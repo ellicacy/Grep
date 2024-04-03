@@ -46,6 +46,7 @@ const Calendar = () => {
         setModifEventModalIsOpen(false);
     };
 
+    // a modifier et ameliorer
     const handleEventClick = (info) => {
         // Récupérer l'événement sélectionné
         const selectedEvent = info.event;
@@ -55,12 +56,13 @@ const Calendar = () => {
     
         // Filtrer l'événement sélectionné de la liste des événements
         const updatedEvents = events.filter(event => event.id !== selectedEvent.id);
-    
+        
+        console.log('Événements mis à jour:', selectedEvent.id);
         // Mettre à jour l'état des événements avec la liste filtrée
         setEvents(updatedEvents);
-    
+        selectedEvent.remove();
         // Supprimer l'événement côté serveur (utilisez axiosClient.delete)
-        axiosClient.delete(`/availabilities/${selectedEvent.id}`)
+        axiosClient.delete(`/availabilities/${selectedEvent}`)
             .then(response => {
                 console.log('Événement supprimé côté serveur:', response.data);
             })

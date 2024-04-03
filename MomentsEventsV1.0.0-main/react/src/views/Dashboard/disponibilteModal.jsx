@@ -1,42 +1,60 @@
 import React from 'react';
-import { Modal, Button } from '@mui/material';
 
 
-const DisponibilitesModal = ({ disponibilites, onClose }) => {
+function convertToUserTimezone(utcDate) {
+  // Création d'un nouvel objet Date à partir de la date UTC
+  const date = new Date(utcDate);
+
+  // Obtention du décalage horaire de l'utilisateur par rapport à l'heure UTC en minutes
+  const userTimezoneOffset = date.getTimezoneOffset();
+
+  // Ajout du décalage horaire de l'utilisateur pour obtenir la date locale
+  date.setMinutes(date.getMinutes() + userTimezoneOffset);
+
+  return date;
+}
+const formatDateString = (dateString) => {
+  const date = new Date(dateString);
+  return date.toLocaleString(); // Utiliser toLocaleString() pour formater la date de manière conviviale
+};
+
+const handleClick = (disponibilite) => {
+  console.log('Disponibilité sélectionnée:', disponibilite);
+  // Ajouter le code pour gérer le clic sur une disponibilité
+}
+
+const DisponibilitesModal = ({ disponibilites }) => {
   return (
-    <Modal
-      open={true} // Ouverture automatique du modal lorsque disponibilitesModal est rendu
-      onClose={onClose} // Gestionnaire d'événements pour fermer le modal
-      aria-labelledby="modal-title"
-      aria-describedby="modal-description"
-    >
-      <div style={{
-        position: 'absolute',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-        width: '80%',
-        maxWidth: 400, // Largeur maximale du modal
-        backgroundColor: 'white',
-        boxShadow: 24,
-        p: 4,
-      }}>
-        <h2 id="modal-title">Disponibilités</h2>
-        <div id="modal-description">
-          {/* Affichage des disponibilités */}
+    <div>
+      <h2>Disponibilités trouvées</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Titre</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
           {disponibilites.map((disponibilite, index) => (
-            <div key={index}>
-              {/* Affichage des détails de disponibilité */}
-              <p>Date: {disponibilite.date}</p>
-              <p>Lieu: {disponibilite.lieu}</p>
-              {/* Ajoutez d'autres détails de disponibilité selon vos besoins */}
-            </div>
+            <tr key={index} onClick={() => handleClick(disponibilite)} className="dateEtTitre" >
+              <td >{disponibilite.title}</td>
+              <td >{formatDateString(convertToUserTimezone(disponibilite.dateTime))}</td>
+              <td>
+                <button onClick={() => handleReservationClick(disponibilite)}>
+                  Réserver
+                </button>
+              </td>
+            </tr>
           ))}
-        </div>
-        {/* Bouton pour fermer le modal */}
-        <Button onClick={onClose}>Fermer</Button>
-      </div>
-    </Modal>
+        </tbody>
+      </table>
+      <style>{`
+        .dateEtTitre:hover{
+          background-color: #f0f0f0; /* Couleur de fond au survol */
+          cursor: pointer; /* Curseur de la souris */
+        }
+      `}</style>
+    </div>
   );
 };
 

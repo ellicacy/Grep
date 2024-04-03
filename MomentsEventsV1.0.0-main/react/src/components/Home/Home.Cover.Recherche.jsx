@@ -1,12 +1,13 @@
 import { Button, Container, Grid, Paper } from '@mui/material'
 import React from 'react'
-import { makeStyles } from '@mui/styles';
 import { TextField } from '@mui/material';
 import { Link, Typography } from '@mui/material';
 import theme from '../../theme';
 import { useState } from 'react';
 import axiosClient from '../../axios-client'
 import DisponibilitesModal from '../../views/Dashboard/disponibilteModal.jsx';
+import Modal from "react-modal";
+import { set } from 'date-fns';
 
 
 
@@ -14,58 +15,87 @@ import DisponibilitesModal from '../../views/Dashboard/disponibilteModal.jsx';
 export default function BarreRecherche() {
   const [dateRecherche, setDateRecherche] = useState("");
   const [lieuRecherche, setLieuRecherche] = useState("");
+  const [modalIsOpen, setModalIsOpen] = useState(false);
   const [typeRecherche, setTypeRecherche] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [disponibilites, setDisponibilites] = useState([]);
+  const [prestations, setPrestations] = useState([]);
+  const [events, setEvents] = useState([]);
   
-  const rechercherDisponibilites = async () => {
-    try {
-      const params = {};
+  const capitalizeFirstLetter = (value) => {
+    return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
+  };
+  
+  const openModal = () => {
+    setModalIsOpen(true);
+};
 
+const closeModal = () => {
+    setModalIsOpen(false);
+};
+const rechercherDisponibilites = async () => {
+  try {
+    // Récupérer les prestations depuis l'API
+    const prestationsResponse = await axiosClient.get('/prestations');
+    const prestations = prestationsResponse.data;
 
+    // Récupérer toutes les disponibilités depuis l'API
+    const availabilitiesResponse = await axiosClient.get('/availabilities');
+    const allAvailabilities = availabilitiesResponse.data;
+
+    console.log('Disponibilités trouvées:', allAvailabilities);
+
+    // Filtrer les disponibilités en fonction des critères de recherche
+    const filteredAvailabilities = allAvailabilities.filter(availability => {
+      // Vérifier si la date de la disponibilité correspond à la date de recherche
       if (dateRecherche !== "") {
-        // Vérifier si la date de recherche est de type journée
-        const date = new Date(dateRecherche);
-        const today = new Date();
-        if (date.getDate() === today.getDate() && date.getMonth() === today.getMonth() && date.getFullYear() === today.getFullYear()) {
-          // Si la date de recherche est le jour même, inclure les heures du jour
-          const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 0, 0, 0);
-          const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59);
-          params.date = {
-            $gte: startOfDay.toISOString(),
-            $lte: endOfDay.toISOString()
-          };
-        } else {
-          // Sinon, utiliser simplement la date fournie
-          params.date = dateRecherche;
+        const selectedDate = new Date(dateRecherche);
+        const availabilityDate = new Date(availability.dateTime);
+        if (availabilityDate.setHours(0, 0, 0, 0) !== selectedDate.setHours(0, 0, 0, 0)) {
+          return false;
         }
       }
-      if (lieuRecherche !== "") {
-        params.lieu = lieuRecherche;
-      }
-      if (typeRecherche !== "") {
-        params.type = typeRecherche;
-      }
-  
-      console.log('Recherche des disponibilités avec les paramètres:', params);
-      const response = await axiosClient.get('/availabilities', { params });
-      console.log('Disponibilités trouvées:', response.data);
-  
-     
-      console.log('Disponibilités trouvées:', response.data); 
-      setDisponibilites(response.data);
 
-      handleOpenModal();
-    } catch (error) {
-      console.error('Erreur lors de la recherche des disponibilités:', error);
-    }
-  };
+      // Vérifier si le lieu de la disponibilité correspond au lieu de recherche
+      if (lieuRecherche !== "" && availability.lieu !== lieuRecherche) {
+        return false;
+      }
+
+      // Vérifier si le type de la disponibilité correspond au type de recherche
+      if (typeRecherche !== "" && prestations.find(prestation => prestation.nom === typeRecherche).id !== availability.idPrestation) {
+        return false;
+      }
+
+      // Si tous les critères correspondent, conserver la disponibilité
+      return true;
+    });
+
+    console.log('Disponibilités filtrées:', filteredAvailabilities);
+
+    // Formater les disponibilités filtrées dans le format attendu par FullCalendar
+    const formattedEvents = filteredAvailabilities.map(availability => ({
+      title: prestations.find(prestation => prestation.id === availability.idPrestation).nom,
+      dateTime: availability.dateTime, 
+    }));
+
+    console.log('Événements formatés:', formattedEvents);
+
+    // Mettre à jour l'état des disponibilités avec les données formatées
+    setDisponibilites(formattedEvents);
+
+    // Ouvrir le modal après avoir filtré les disponibilités
+    openModal();
+  } catch (error) {
+    console.error('Erreur lors de la recherche des disponibilités:', error);
+    alert('Il n\' y a pas d\'évenement disponible.');
+  }
+};
   const handleClick = () => {
     rechercherDisponibilites();
   }
-  const handleOpenModal = () => {
-    setModalOpen(true);
-  };
+
+  
+
 
   return (
     <>
@@ -138,7 +168,7 @@ export default function BarreRecherche() {
                   placeholder="Pour quelle occasion ?"
                   inputProps={theme.inputProps}
                   value={typeRecherche}
-                  onChange={(e) => setTypeRecherche(e.target.value)}
+                  onChange={(e) => setTypeRecherche(capitalizeFirstLetter(e.target.value))}
                 />
               </Grid>
               <Grid
@@ -195,13 +225,46 @@ export default function BarreRecherche() {
                 >Rechercher
                 </Button>
               </Grid>
-              {modalOpen && (
-                <DisponibilitesModal
-                  disponibilites={disponibilites}
-                  onClose={() => setModalOpen(false)}
-                />
-)}
+              
             </Grid>
+            <Modal
+              isOpen={modalIsOpen}
+              onRequestClose={closeModal}
+              contentLabel="Event Modal"
+              shouldCloseOnOverlayClick={false}
+              style={{
+                  overlay: {
+                      zIndex: 1000,
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                  },
+                  content: {
+                    zIndex: 1001,
+                    position: "relative",
+                    top: "auto",
+                    left: "auto",
+                    right: "auto",
+                    bottom: "auto",
+                    border: "1px solid #ccc",
+                    background: "white",
+                    overflow: "auto", // Permet le défilement lorsque le contenu dépasse la taille du modal
+                    WebkitOverflowScrolling: "touch",
+                    borderRadius: "4px",
+                    outline: "none",
+                    padding: "20px",
+                    width: "auto",
+                    maxHeight: "80vh" 
+                  },
+              }}
+          >
+            <DisponibilitesModal disponibilites={disponibilites} />
+            <button onClick={closeModal}>
+              Fermer
+              </button>
+            
+          </Modal>
+
 
             <Grid
               container

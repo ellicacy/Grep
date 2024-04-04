@@ -4,7 +4,7 @@ import { useState } from 'react'
 import Box from '@mui/material/Box'
 import Grid from '@mui/material/Grid'
 
-import Cover from '../../components/Home/Home.Cover.Recherche'
+import Cover from '../../components/Home/ME_Home.Cover.Recherche'
 import Header from '../../components/Navigation/Header'
 import SelectionPrestation from '../../components/Home/Home.Selection.Prestation'
 import SelectionCategorie from '../../components/Home/Home.Selection.Categorie'
@@ -12,6 +12,7 @@ import SelectionPrestataire from '../../components/Home/Home.Selection.Prestatai
 import SelectionFAQ from '../../components/Home/Home.Selection.FAQ'
 import BottomPage from '../../components/Navigation/BottomPage'
 import Loader from '../Loader'
+import ReserverForm from '../../components/ME_Reservation/ME_ReserverForm';
 
 import { useSelector } from 'react-redux'
 
@@ -27,6 +28,8 @@ export default function Home(props) {
   const [prestations, setPrestations] = useState([])
   const [categories, setCategories] = useState([])
 
+  const [showReserverForm, setShowReserverForm] = useState(false);
+
   useEffect(() => {
     setPrestataires(statePrestataires.prestataires)
     setPrestations(statePrestations)
@@ -37,7 +40,9 @@ export default function Home(props) {
 
   }, [statePrestataires, statePrestations, stateCategories])
 
-
+  const handleClickReserver = () => {
+    setShowReserverForm(true);
+  };
 
 
   return (
@@ -70,6 +75,7 @@ export default function Home(props) {
             <SelectionFAQ />
           </Grid>
           <Grid item>
+            {showReserverForm && <ReserverForm />}
             <BottomPage />
           </Grid>
         </Grid>

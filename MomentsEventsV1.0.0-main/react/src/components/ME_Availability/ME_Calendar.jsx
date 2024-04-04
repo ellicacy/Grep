@@ -12,7 +12,6 @@ import ModifEvent from './ModifEvent';
 import axiosClient from '../../axios-client'
 import Modal from "react-modal";
 import "../../index.css"
-import { all } from "axios";
 
 const Calendar = () => {
     
@@ -400,6 +399,7 @@ const Calendar = () => {
                 <br />
                 <button onClick={handleConfirm}>Confirmer</button>
                 <button onClick={closeModal}>Annuler</button>
+
             </Modal>
             
             <ModifEvent

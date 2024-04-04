@@ -15,6 +15,7 @@ import Notification from './views/Dashboard/Notification';
 import SettingsPage from './views/Dashboard/Settings/SettingsPage';
 import Prestations from './views/Dashboard/Prestations';
 import Availability from './views/Dashboard/ME_Availability';
+import ReserverPresta from './views/Dashboard/ME_ReserverPresta';
 import Dashboard from './views/Dashboard/Dashboard';
 import GestionCategories from './views/Dashboard/Admin/GestionCategories';
 import GestionEvents from './views/Dashboard/Admin/GestionEvents';
@@ -157,6 +158,10 @@ const router = createBrowserRouter([
             {
                 path: '/availabilities',
                 element: <Availability/>
+            },
+            {
+                path: '/reserverPresta',
+                element: <ReserverPresta/>
             }
             // {
             //     path: '/profile',

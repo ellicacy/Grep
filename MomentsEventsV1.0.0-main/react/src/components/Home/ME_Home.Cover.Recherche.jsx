@@ -2,12 +2,13 @@ import { Button, Container, Grid, Paper } from '@mui/material'
 import React from 'react'
 import { TextField } from '@mui/material';
 import { Link, Typography } from '@mui/material';
-import theme from '../../theme';
+import theme from '../../theme.jsx';
 import { useState } from 'react';
-import axiosClient from '../../axios-client'
-import DisponibilitesModal from '../../views/Dashboard/disponibilteModal.jsx';
+import axiosClient from '../../axios-client.js'
+import DisponibilitesModal from '../ME_Availability/ME_DisponibilteModal.jsx';
 import Modal from "react-modal";
 import { set } from 'date-fns';
+import ReserverForm from '../ME_Reservation/ME_ReserverForm.jsx';
 
 
 
@@ -17,10 +18,11 @@ export default function BarreRecherche() {
   const [lieuRecherche, setLieuRecherche] = useState("");
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [typeRecherche, setTypeRecherche] = useState("");
-  const [modalOpen, setModalOpen] = useState(false);
   const [disponibilites, setDisponibilites] = useState([]);
-  const [prestations, setPrestations] = useState([]);
-  const [events, setEvents] = useState([]);
+  const [showDisponibilites, setShowDisponibilites] = useState(true);
+  const [reserverFormIsOpen, setReserverFormIsOpen] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [selectedTitle, setSelectedTitle] = useState(null);
   
   const capitalizeFirstLetter = (value) => {
     return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
@@ -93,6 +95,25 @@ const rechercherDisponibilites = async () => {
   const handleClick = () => {
     rechercherDisponibilites();
   }
+
+  const openReserverFormModal = (date) => {
+    setShowDisponibilites(false);
+    setReserverFormIsOpen(true);
+
+};
+
+const closeReserverFormModal = () => {
+    setReserverFormIsOpen(false);
+    setShowDisponibilites(true);
+};
+
+const onSelectedDisponibiliteChange = (date) => {
+  setSelectedDate(date.dateTime);
+  setSelectedTitle(date.title);
+  console.log('Date sélectionnée: 4.0', date.dateTime);
+  console.log('Titre sélectionné: 4.0', date.title);
+}
+
 
   
 
@@ -258,11 +279,28 @@ const rechercherDisponibilites = async () => {
                   },
               }}
           >
-            <DisponibilitesModal disponibilites={disponibilites} />
-            <button onClick={closeModal}>
-              Fermer
-              </button>
-            
+            {showDisponibilites && (
+              <div>
+                  <DisponibilitesModal 
+                      disponibilites={disponibilites}
+                      closeModal={closeModal}
+                      openReserverFormModal={openReserverFormModal} 
+                      onSelectedDisponibiliteChange={onSelectedDisponibiliteChange}
+                  />
+                  <button onClick={closeModal}>
+                      Fermer
+                  </button>
+              </div>
+          )}
+
+          {reserverFormIsOpen && (
+              <ReserverForm
+                closeModal={closeModal}
+                onClose={closeReserverFormModal}
+                selectedDate={selectedDate}
+                selectedTitle={selectedTitle} />
+          )}
+              
           </Modal>
 
 

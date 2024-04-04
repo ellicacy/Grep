@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
+
 
 
 function convertToUserTimezone(utcDate) {
@@ -11,19 +12,36 @@ function convertToUserTimezone(utcDate) {
   // Ajout du décalage horaire de l'utilisateur pour obtenir la date locale
   date.setMinutes(date.getMinutes() + userTimezoneOffset);
 
+  
+
   return date;
 }
-const formatDateString = (dateString) => {
-  const date = new Date(dateString);
-  return date.toLocaleString(); // Utiliser toLocaleString() pour formater la date de manière conviviale
-};
 
-const handleClick = (disponibilite) => {
-  console.log('Disponibilité sélectionnée:', disponibilite);
-  // Ajouter le code pour gérer le clic sur une disponibilité
-}
 
-const DisponibilitesModal = ({ disponibilites }) => {
+
+const DisponibilitesModal = ({ disponibilites, closeModal,  openReserverFormModal, onSelectedDisponibiliteChange  }) => {
+
+  const [selectedDisponibilite, setSelectedDisponibilite] = useState(null);
+
+
+  const formatDateString = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleString(); // Utiliser toLocaleString() pour formater la date de manière conviviale
+  };
+  
+  const handleClick = (disponibilite) => {
+    console.log('Disponibilité sélectionnée:', disponibilite);
+    // stocker la disponibilité sélectionnée dans le state
+    setSelectedDisponibilite(disponibilite);
+   
+  }
+
+  const handleClickReserver = (disponibilite) => {
+    console.log('Disponibilité sélectionnée 2.0 :', disponibilite);
+    openReserverFormModal();
+    onSelectedDisponibiliteChange(disponibilite)
+
+  };
   return (
     <div>
       <h2>Disponibilités trouvées</h2>
@@ -40,9 +58,9 @@ const DisponibilitesModal = ({ disponibilites }) => {
               <td >{disponibilite.title}</td>
               <td >{formatDateString(convertToUserTimezone(disponibilite.dateTime))}</td>
               <td>
-                <button onClick={() => handleReservationClick(disponibilite)}>
-                  Réserver
-                </button>
+              <button onClick={() => handleClickReserver(disponibilite)}>
+                Réserver
+              </button>
               </td>
             </tr>
           ))}

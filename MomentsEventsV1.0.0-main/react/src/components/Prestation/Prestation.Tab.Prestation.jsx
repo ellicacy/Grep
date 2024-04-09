@@ -28,7 +28,7 @@ import { notes } from "../../outils/notes";
 import { forEach, set, split } from "lodash";
 
 import DOMPurify from "dompurify";
-
+import Modal from "react-modal";
 import {
     ajouterPackPanier,
     ajouterPrestationPanier,
@@ -38,6 +38,26 @@ import { ajouterPack } from "../../store/packSlice";
 import BannierePrestataire from "../Prestataire/Banniere.Prestataire";
 import Loader from "../../views/Loader";
 import Pack from "./Prestation.Pack";
+import axiosClient from '../../axios-client.js'
+import DisponibilitesModal from "../ME_Availability/ME_DisponibilteModal";
+import ReserverForm from "../ME_Reservation/ME_ReserverForm";
+import Footer from "../ME_Availability/ME_FooterDispo";
+
+
+function convertToUserTimezone(utcDate) {
+    // Création d'un nouvel objet Date à partir de la date UTC
+    const date = new Date(utcDate);
+  
+    // Obtention du décalage horaire de l'utilisateur par rapport à l'heure UTC en minutes
+    const userTimezoneOffset = date.getTimezoneOffset();
+  
+    // Ajout du décalage horaire de l'utilisateur pour obtenir la date locale
+    date.setMinutes(date.getMinutes() + userTimezoneOffset);
+  
+    
+  
+    return date;
+  }
 
 export function TabPrestation(props) {
     const [description, setDescription] = useState("");
@@ -150,8 +170,10 @@ export function TabPrestation(props) {
         //setLstPack(props.prestation.pack)
 
         setDescription(purifyDescr);
-
+        console.log(props.prestation);
+        
         const lst = props.prestation.contrainte.split(";");
+        
         setLstCara(lst);
         setOneMedia(lstPhoto.length === 1);
         couleur(oneMedia);
@@ -168,6 +190,125 @@ export function TabPrestation(props) {
 
         setLoading(false);
     }, []);
+    const [dateRecherche, setDateRecherche] = useState("");
+    const [lieuRecherche, setLieuRecherche] = useState("");
+    const [modalIsOpen, setModalIsOpen] = useState(false);
+    const [typeRecherche, setTypeRecherche] = useState("");
+    const [disponibilites, setDisponibilites] = useState([]);
+    const [showDisponibilites, setShowDisponibilites] = useState(true);
+    const [reserverFormIsOpen, setReserverFormIsOpen] = useState(false);
+    const [selectedDate, setSelectedDate] = useState(null);
+    const [selectedTitle, setSelectedTitle] = useState(null);
+    const [selectedPrestataire, setSelectedPrestataire] = useState(null);
+    
+    const capitalizeFirstLetter = (value) => {
+      return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
+    };
+    
+    const openModal = () => {
+      setModalIsOpen(true);
+  };
+  
+  const closeModal = () => {
+      setModalIsOpen(false);
+  };
+  const rechercherDisponibilites = async (tous) => {
+    try {
+        
+      // Récupérer les prestations depuis l'API
+        const prestationId = props.prestation.id;
+        const prestationTitre = props.prestation.nom;
+        const prestataireId = props.prestation.id_user;
+
+        // Récupérer toutes les disponibilités depuis l'API
+        const availabilitiesResponse = await axiosClient.get('/availabilities');
+        const allAvailabilities = availabilitiesResponse.data;
+        const usersResponse = await axiosClient.get('/users');
+        const usersData = usersResponse.data.data;
+    
+        // Filtrer les disponibilités en fonction des critères de recherche
+        const filteredAvailabilities = allAvailabilities.filter(availability => {
+            const availabilityPrestationId = prestationId;
+            availability.idPrestation = availabilityPrestationId;
+
+            // Vérifier si la date de la disponibilité correspond à la date de recherche
+            if (dateRecherche !== "" && tous === false) {
+                const selectedDate = new Date(dateRecherche);
+                const availabilityDate = convertToUserTimezone(availability.dateTime);
+  
+          if (availabilityDate.setHours(0, 0, 0, 0) !== selectedDate.setHours(0, 0, 0, 0)) {
+            return false;
+          }
+        }
+  
+        // Vérifier si le lieu de la disponibilité correspond au lieu de recherche
+        if (lieuRecherche !== "" && availability.lieu !== lieuRecherche && tous === false) {
+          return false;
+        }
+
+        
+  
+        // Si tous les critères correspondent, conserver la disponibilité
+        return true;
+      });
+  
+      console.log('Disponibilités filtrées:', filteredAvailabilities);
+  
+      // Formater les disponibilités filtrées dans le format attendu par FullCalendar
+      const formattedEvents = filteredAvailabilities.map(availability => {
+        console.log('idPer:', prestationId);
+
+        const prestataire = usersData.find(user => user.idPersonne === prestataireId);
+        console.log('idPer:', prestataire);
+        return {
+          title: prestationTitre,
+          dateTime: availability.dateTime, 
+          prestataire: capitalizeFirstLetter(prestataire.personnePrenom) + ' ' + capitalizeFirstLetter(prestataire.personneNom),
+        };
+      });
+      
+  
+      console.log('Événements formatés:', formattedEvents);
+  
+      // Mettre à jour l'état des disponibilités avec les données formatées
+      setDisponibilites(formattedEvents);
+  
+  
+      // Ouvrir le modal après avoir filtré les disponibilités
+      openModal();
+    } catch (error) {
+      console.error('Erreur lors de la recherche des disponibilités:', error);
+      alert('Il n\' y a pas d\'évenement disponible.');
+    }
+  };
+  
+    const handleClick = () => {
+        const tous = false;
+        rechercherDisponibilites(tous);
+    }
+  
+    const handleClickTous = () => {
+        const tous = true;
+        rechercherDisponibilites(tous);
+    }
+    const openReserverFormModal = (date) => {
+      setShowDisponibilites(false);
+      setReserverFormIsOpen(true);
+  
+  };
+  
+  const closeReserverFormModal = () => {
+      setReserverFormIsOpen(false);
+      setShowDisponibilites(true);
+  };
+  
+  const onSelectedDisponibiliteChange = (date) => {
+    setSelectedDate(date.dateTime);
+    setSelectedTitle(date.title);
+    setSelectedPrestataire(date.prestataire);
+
+  
+  }
 
     return (
         <>
@@ -371,10 +512,8 @@ export function TabPrestation(props) {
                                             autoComplete="date"
                                             size="small"
                                             sx={{ width: "340px" }}
-                                            onChange={(e) => {
-                                                handleChangeDate(e);
-                                            }}
-                                            value={date ? date : ""}
+                                            value={dateRecherche}
+                                            onChange={(e) => setDateRecherche(e.target.value)}
                                         />
                                     </Grid>
                                     <Grid mt="10px">
@@ -384,11 +523,102 @@ export function TabPrestation(props) {
                                             type="text"
                                             variant="outlined"
                                             fullWidth
-                                            onChange={handleChangeLieu}
+                                            value={lieuRecherche}
+                                            onChange={(e) => setLieuRecherche(e.target.value)}
                                             sx={{ width: "340px" }}
                                             size="small"
                                         />
                                     </Grid>
+                                    <Grid mt="10px">
+                                        <Button onClick={() => {
+                                            handleClick();
+                                        }} variant="contained" color="primary">
+                                            Recherche
+                                        </Button>
+                                        <Button onClick={() => {
+                                            handleClickTous(); 
+                                        }}  variant="contained" color="primary">Afficher toutes les dispos</Button>
+                                    </Grid>
+                                    
+                                    <Modal
+                                        isOpen={modalIsOpen}
+                                        onRequestClose={closeModal}
+                                        contentLabel="Event Modal"
+                                        shouldCloseOnOverlayClick={false}
+                                        style={{
+                                            overlay: {
+                                                zIndex: 1000,
+                                                display: "flex",
+                                                justifyContent: "center",
+                                                alignItems: "center",
+                                            },
+                                            content: {
+                                                zIndex: 1001,
+                                                position: "relative",
+                                                top: "auto",
+                                                left: "auto",
+                                                right: "auto",
+                                                bottom: "auto",
+                                                border: "1px solid #ccc",
+                                                background: "white",
+                                                WebkitOverflowScrolling: "touch",
+                                                borderRadius: "4px",
+                                                outline: "none",
+                                                padding: "20px",
+                                                width: "auto",
+                                                maxHeight: "80vh" 
+                                            },
+                                            
+                                            
+                                        }}
+                                        
+                                    >
+                                        <div
+                                        style={{
+                                        position: "sticky",
+                                        top: 0,
+                                        backgroundColor: "white",
+                                        padding: "10px",
+                                        borderBottom: "1px solid #ccc",
+                                        textAlign: "left",
+                                        }}
+                                    >
+                                        <h2>Disponibilités trouvées</h2>
+                                        <table>
+                                        <thead>
+                                            <tr>
+                                            <th>Titre</th>
+                                            <th>Date</th>
+                                            <th>Nom</th>
+                                            </tr>
+                                        </thead>
+                                        </table>
+                                    </div>
+
+                                        {showDisponibilites && (
+                                        <div style={{ maxHeight: "calc(80vh - 50px)", overflowY: "auto" }}>
+                                            <DisponibilitesModal 
+                                                disponibilites={disponibilites}
+                                                closeModal={closeModal}
+                                                openReserverFormModal={openReserverFormModal} 
+                                                onSelectedDisponibiliteChange={onSelectedDisponibiliteChange}
+                                            />
+                                            
+                                        </div>
+                                    )}
+                                        <Footer onClose={closeModal} />
+                                    </Modal>
+
+                                    <Modal isOpen={reserverFormIsOpen} onRequestClose={closeReserverFormModal} contentLabel="Reserver Form Modal">
+                                        <ReserverForm
+                                        onClose={closeReserverFormModal}
+                                        selectedDate={selectedDate}
+                                        selectedTitle={selectedTitle}
+                                        selectedPrestataire={selectedPrestataire}
+                                        disponibilites={disponibilites}
+                                        setDisponibilites={setDisponibilites}
+                                        />
+                                    </Modal>
 
                                     {dispo() && (
                                         <Grid mt="10px">

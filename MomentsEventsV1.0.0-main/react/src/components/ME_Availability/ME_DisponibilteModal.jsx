@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-
+import Footer from './ME_FooterDispo';
 
 
 function convertToUserTimezone(utcDate) {
@@ -40,23 +40,40 @@ const DisponibilitesModal = ({ disponibilites, closeModal,  openReserverFormModa
     console.log('Disponibilité sélectionnée 2.0 :', disponibilite);
     openReserverFormModal();
     onSelectedDisponibiliteChange(disponibilite)
+    closeModal();
 
   };
+
+  
+
+  if (disponibilites.length === 0) {
+    return (
+      <div>
+        <p>Aucune disponibilité trouvée pour le moment.</p>
+        {/*
+          <p>Afficher les dates de disponibilite suivante?</p>
+          <button>Oui</button>
+          <button onClick={closeModal}>Non</button>
+        */}
+
+        <br />
+        <br />
+        <br />
+      </div>
+    );
+  }
+
+  disponibilites.sort((a, b) => new Date(a.dateTime) - new Date(b.dateTime));
+  
   return (
     <div>
-      <h2>Disponibilités trouvées</h2>
       <table>
-        <thead>
-          <tr>
-            <th>Titre</th>
-            <th>Date</th>
-          </tr>
-        </thead>
         <tbody>
           {disponibilites.map((disponibilite, index) => (
             <tr key={index} onClick={() => handleClick(disponibilite)} className="dateEtTitre" >
               <td >{disponibilite.title}</td>
               <td >{formatDateString(convertToUserTimezone(disponibilite.dateTime))}</td>
+              <td>{disponibilite.prestataire}</td> 
               <td>
               <button onClick={() => handleClickReserver(disponibilite)}>
                 Réserver
@@ -72,6 +89,7 @@ const DisponibilitesModal = ({ disponibilites, closeModal,  openReserverFormModa
           cursor: pointer; /* Curseur de la souris */
         }
       `}</style>
+     
     </div>
   );
 };

@@ -7,13 +7,27 @@ import { useState } from 'react';
 import axiosClient from '../../axios-client.js'
 import DisponibilitesModal from '../ME_Availability/ME_DisponibilteModal.jsx';
 import Modal from "react-modal";
-import { set } from 'date-fns';
 import ReserverForm from '../ME_Reservation/ME_ReserverForm.jsx';
+import Footer from '../ME_Availability/ME_FooterDispo.jsx';
 
+function convertToUserTimezone(utcDate) {
+  // Création d'un nouvel objet Date à partir de la date UTC
+  const date = new Date(utcDate);
 
+  // Obtention du décalage horaire de l'utilisateur par rapport à l'heure UTC en minutes
+  const userTimezoneOffset = date.getTimezoneOffset();
+
+  // Ajout du décalage horaire de l'utilisateur pour obtenir la date locale
+  date.setMinutes(date.getMinutes() + userTimezoneOffset);
+
+  
+
+  return date;
+}
 
 
 export default function BarreRecherche() {
+
   const [dateRecherche, setDateRecherche] = useState("");
   const [lieuRecherche, setLieuRecherche] = useState("");
   const [modalIsOpen, setModalIsOpen] = useState(false);
@@ -23,7 +37,9 @@ export default function BarreRecherche() {
   const [reserverFormIsOpen, setReserverFormIsOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedTitle, setSelectedTitle] = useState(null);
+  const [selectedPrestataire, setSelectedPrestataire] = useState(null);
   
+ 
   const capitalizeFirstLetter = (value) => {
     return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
   };
@@ -44,6 +60,8 @@ const rechercherDisponibilites = async () => {
     // Récupérer toutes les disponibilités depuis l'API
     const availabilitiesResponse = await axiosClient.get('/availabilities');
     const allAvailabilities = availabilitiesResponse.data;
+    const usersResponse = await axiosClient.get('/users');
+    const usersData = usersResponse.data.data;
 
     console.log('Disponibilités trouvées:', allAvailabilities);
 
@@ -52,10 +70,14 @@ const rechercherDisponibilites = async () => {
       // Vérifier si la date de la disponibilité correspond à la date de recherche
       if (dateRecherche !== "") {
         const selectedDate = new Date(dateRecherche);
-        const availabilityDate = new Date(availability.dateTime);
+        const availabilityDate = convertToUserTimezone(availability.dateTime);
+        
+        
+
         if (availabilityDate.setHours(0, 0, 0, 0) !== selectedDate.setHours(0, 0, 0, 0)) {
           return false;
         }
+        
       }
 
       // Vérifier si le lieu de la disponibilité correspond au lieu de recherche
@@ -75,16 +97,38 @@ const rechercherDisponibilites = async () => {
     console.log('Disponibilités filtrées:', filteredAvailabilities);
 
     // Formater les disponibilités filtrées dans le format attendu par FullCalendar
-    const formattedEvents = filteredAvailabilities.map(availability => ({
-      title: prestations.find(prestation => prestation.id === availability.idPrestation).nom,
-      dateTime: availability.dateTime, 
-    }));
+    const formattedEvents = filteredAvailabilities.map(availability => {
+      const prestation = prestations.find(prestation => prestation.id === availability.idPrestation);
+      const userId = prestation.id_user;
+      const prestataire = usersData.find(user => user.idPersonne === userId);
+      return {
+        title: prestation.nom,
+        dateTime: availability.dateTime, 
+        prestataire: capitalizeFirstLetter(prestataire.personnePrenom) + ' ' + capitalizeFirstLetter(prestataire.personneNom),
+      };
+    });
+    
 
     console.log('Événements formatés:', formattedEvents);
 
     // Mettre à jour l'état des disponibilités avec les données formatées
     setDisponibilites(formattedEvents);
 
+    /* trop de demande pour le serveur
+    if (formattedEvents.length === 0) {
+      // Aucune disponibilité trouvée, recherchez la disponibilité suivante
+      // rajouter un jour a la date de recherche
+      const nextDate = new Date(dateRecherche);
+      nextDate.setDate(nextDate.getDate() + 1);
+      setDateRecherche(nextDate.toISOString().split('T')[0]);
+      rechercherDisponibilites();
+
+    } else {
+      // Des disponibilités ont été trouvées, mettre à jour l'état et ouvrir le modal
+      setDisponibilites(formattedEvents);
+      openModal();
+    }
+*/
     // Ouvrir le modal après avoir filtré les disponibilités
     openModal();
   } catch (error) {
@@ -92,6 +136,8 @@ const rechercherDisponibilites = async () => {
     alert('Il n\' y a pas d\'évenement disponible.');
   }
 };
+
+
   const handleClick = () => {
     rechercherDisponibilites();
   }
@@ -110,12 +156,9 @@ const closeReserverFormModal = () => {
 const onSelectedDisponibiliteChange = (date) => {
   setSelectedDate(date.dateTime);
   setSelectedTitle(date.title);
-  console.log('Date sélectionnée: 4.0', date.dateTime);
-  console.log('Titre sélectionné: 4.0', date.title);
+  setSelectedPrestataire(date.prestataire);
+
 }
-
-
-  
 
 
   return (
@@ -269,7 +312,6 @@ const onSelectedDisponibiliteChange = (date) => {
                     bottom: "auto",
                     border: "1px solid #ccc",
                     background: "white",
-                    overflow: "auto", // Permet le défilement lorsque le contenu dépasse la taille du modal
                     WebkitOverflowScrolling: "touch",
                     borderRadius: "4px",
                     outline: "none",
@@ -277,30 +319,58 @@ const onSelectedDisponibiliteChange = (date) => {
                     width: "auto",
                     maxHeight: "80vh" 
                   },
+                  
+                  
               }}
+              
           >
+            <div
+            style={{
+              position: "sticky",
+              top: 0,
+              backgroundColor: "white",
+              padding: "10px",
+              borderBottom: "1px solid #ccc",
+              textAlign: "left",
+            }}
+          >
+            <h2>Disponibilités trouvées</h2>
+            <table>
+              <thead>
+                <tr>
+                  <th>Titre</th>
+                  <th>Date</th>
+                  <th>Nom</th>
+                </tr>
+              </thead>
+            </table>
+          </div>
+
             {showDisponibilites && (
-              <div>
+              <div style={{ maxHeight: "calc(80vh - 50px)", overflowY: "auto" }}>
                   <DisponibilitesModal 
                       disponibilites={disponibilites}
                       closeModal={closeModal}
                       openReserverFormModal={openReserverFormModal} 
                       onSelectedDisponibiliteChange={onSelectedDisponibiliteChange}
+
                   />
-                  <button onClick={closeModal}>
-                      Fermer
-                  </button>
+                  
               </div>
           )}
+              <Footer onClose={closeModal} />
+          </Modal>
 
-          {reserverFormIsOpen && (
-              <ReserverForm
-                closeModal={closeModal}
-                onClose={closeReserverFormModal}
-                selectedDate={selectedDate}
-                selectedTitle={selectedTitle} />
-          )}
+          <Modal isOpen={reserverFormIsOpen} onRequestClose={closeReserverFormModal} contentLabel="Reserver Form Modal">
+            <ReserverForm
+              onClose={closeReserverFormModal}
+              selectedDate={selectedDate}
+              selectedTitle={selectedTitle}
+              selectedPrestataire={selectedPrestataire}
+              disponibilites={disponibilites}
+              setDisponibilites={setDisponibilites}
               
+            />
           </Modal>
 
 

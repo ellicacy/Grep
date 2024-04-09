@@ -12,8 +12,7 @@ import ModifEvent from './ModifEvent';
 import axiosClient from '../../axios-client'
 import Modal from "react-modal";
 import "../../index.css"
-import { set } from "lodash";
-import { de } from "date-fns/locale";
+
 
 const Calendar = () => {
     let formattedEvents = [];
@@ -28,6 +27,7 @@ const Calendar = () => {
     const [prestationId, setPrestationId] = useState('');
     const [prestation, setPrestation] = useState('');
     const [isMounted, setIsMounted] = useState(false);
+    const [userId, setUserId] = useState(null);
 
     const openModal = (date) => {
         setSelectedDate(date);
@@ -38,18 +38,7 @@ const Calendar = () => {
         setModalIsOpen(false);
     };
 
-    const customDayRender = ({ date, dayEl }) => {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-
-        // Désactivez les jours passés
-        if (date < today) {
-            dayEl.style.backgroundColor = "#f2f2f2";
-            dayEl.style.pointerEvents = "none";
-        }
-    };
- 
-
+    
     const handleEventClick = (info) => {
         const eventId = info.event.id;
         deleteEvent(eventId);
@@ -168,6 +157,13 @@ const Calendar = () => {
             const prestationsResponse = await axiosClient.get('/prestations');
             setPrestations(prestationsResponse.data);
 
+            const user = JSON.parse(localStorage.getItem("USER"));
+            if (user) {
+                const userIdP = user.idPersonne;
+                setUserId(userIdP);
+            }
+            
+            
             // Récupérer les disponibilités de la base de données
             const availabilitiesResponse = await axiosClient.get('/availabilities');
             const availabilities = availabilitiesResponse.data;
@@ -267,7 +263,10 @@ const Calendar = () => {
                     >
                         <option value="">Sélectionnez une prestation</option>
                         // Récupérer les prestations de l'utilisateur connecté
-                        {prestations.map((prestation) => (
+                        
+                        {prestations
+                        .filter(prestation => prestation.id_user === userId)
+                        .map((prestation) => (
                             <option key={prestation.id} value={prestation.id}>
                                 {prestation.nom}
                             </option>

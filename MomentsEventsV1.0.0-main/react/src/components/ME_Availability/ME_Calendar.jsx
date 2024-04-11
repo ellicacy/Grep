@@ -13,6 +13,20 @@ import axiosClient from '../../axios-client'
 import Modal from "react-modal";
 import "../../index.css"
 
+function convertToUserTimezone(utcDate) {
+    // Création d'un nouvel objet Date à partir de la date UTC
+    const date = new Date(utcDate);
+  
+    // Obtention du décalage horaire de l'utilisateur par rapport à l'heure UTC en minutes
+    const userTimezoneOffset = date.getTimezoneOffset();
+  
+    // Ajout du décalage horaire de l'utilisateur pour obtenir la date locale
+    date.setMinutes(date.getMinutes() + userTimezoneOffset);
+  
+    
+  
+    return date;
+  }
 
 const Calendar = () => {
     let formattedEvents = [];
@@ -44,6 +58,23 @@ const Calendar = () => {
         deleteEvent(eventId);
         info.event.remove();
 
+    };
+    const deleteEventPastdate = async () => {
+        try {
+            const response = await axiosClient.get('/availabilities');
+            const availabilities = response.data;
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const pastEvents = availabilities.filter(availability => convertToUserTimezone(availability.dateTime) < today);
+            for (let i = 0; i < pastEvents.length; i++) {
+                const eventId = pastEvents[i].id;
+                await axiosClient.delete(`/availabilities/${eventId}`);
+            }
+            const newEvents = availabilities.filter(availability => new Date(availability.dateTime) >= today);
+            setEvents(newEvents);
+        } catch (error) {
+            console.error('Erreur lors de la suppression des événements passés :', error);
+        }
     };
 
     const deleteEvent = async (eventId) => {
@@ -154,29 +185,34 @@ const Calendar = () => {
     const fetchData = async () => {
         try {
             // Récupérer les prestations de la base de données
+            deleteEventPastdate();
             const prestationsResponse = await axiosClient.get('/prestations');
             setPrestations(prestationsResponse.data);
 
             const user = JSON.parse(localStorage.getItem("USER"));
             if (user) {
                 const userIdP = user.idPersonne;
+                console.log(userIdP);
                 setUserId(userIdP);
+                const userPrestations = prestationsResponse.data.filter(prestation => prestation.id_user === userIdP);
+                const availabilitiesResponse = await axiosClient.get('/availabilities');
+                const availabilities = availabilitiesResponse.data;
+    
+                // Formater les disponibilités dans le format attendu par FullCalendar
+                const formattedEvents = availabilities
+                .filter(availability => userPrestations.some(prestation => prestation.id === availability.idPrestation))
+                .map(availability => ({
+                    title: prestationsResponse.data.find(prestation => prestation.id === availability.idPrestation).nom,
+                    start: availability.dateTime, 
+                    id: availability.id,
+                }));
+                
+                // Mettre à jour l'état events avec les disponibilités récupérées
+                setEvents(formattedEvents);
+            
             }
-            
-            
-            // Récupérer les disponibilités de la base de données
-            const availabilitiesResponse = await axiosClient.get('/availabilities');
-            const availabilities = availabilitiesResponse.data;
-
-            // Formater les disponibilités dans le format attendu par FullCalendar
-            const formattedEvents = availabilities.map(availability => ({
-                title: prestationsResponse.data.find(prestation => prestation.id === availability.idPrestation).nom,
-                start: availability.dateTime, 
-                id: availability.id,
-            }));
-            
-            // Mettre à jour l'état events avec les disponibilités récupérées
-            setEvents(formattedEvents);
+ 
+           
         } catch (error) {
             console.error('Erreur lors de la récupération des données:', error);
         }

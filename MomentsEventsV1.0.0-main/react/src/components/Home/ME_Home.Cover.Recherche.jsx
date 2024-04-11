@@ -57,6 +57,7 @@ const rechercherDisponibilites = async () => {
     const prestationsResponse = await axiosClient.get('/prestations');
     const prestations = prestationsResponse.data;
 
+    console.log('Prestations trouvées:', prestations);
     // Récupérer toutes les disponibilités depuis l'API
     const availabilitiesResponse = await axiosClient.get('/availabilities');
     const allAvailabilities = availabilitiesResponse.data;
@@ -64,7 +65,8 @@ const rechercherDisponibilites = async () => {
     const usersData = usersResponse.data.data;
 
     console.log('Disponibilités trouvées:', allAvailabilities);
-
+    console.log('recheerche trouvées:', typeRecherche);
+    console.log('ttire presta:', prestations.nom);
     // Filtrer les disponibilités en fonction des critères de recherche
     const filteredAvailabilities = allAvailabilities.filter(availability => {
       // Vérifier si la date de la disponibilité correspond à la date de recherche
@@ -72,22 +74,39 @@ const rechercherDisponibilites = async () => {
         const selectedDate = new Date(dateRecherche);
         const availabilityDate = convertToUserTimezone(availability.dateTime);
         
-        
-
         if (availabilityDate.setHours(0, 0, 0, 0) !== selectedDate.setHours(0, 0, 0, 0)) {
           return false;
         }
         
       }
+      // date et typeRcherche
+       if (dateRecherche !== "" && typeRecherche !== "") {
+        const selectedDate = new Date(dateRecherche);
+        const availabilityDate = convertToUserTimezone(availability.dateTime);
+        if (availabilityDate.setHours(0, 0, 0, 0) !== selectedDate.setHours(0, 0, 0, 0)&& prestations.find(prestation => prestation.nom === typeRecherche).id !== availability.idPrestation) {
+          return false;
+        }
+  
+      }
+      
 
       // Vérifier si le lieu de la disponibilité correspond au lieu de recherche
-      if (lieuRecherche !== "" && availability.lieu !== lieuRecherche) {
-        return false;
+      if (lieuRecherche !== "") {
+        const prestation = prestations.find(prestation => prestation.id === availability.idPrestation);
+        if (prestation.lieu.toLowerCase() !== lieuRecherche.toLowerCase()) {
+          return false;
+        }
       }
 
+      
       // Vérifier si le type de la disponibilité correspond au type de recherche
-      if (typeRecherche !== "" && prestations.find(prestation => prestation.nom === typeRecherche).id !== availability.idPrestation) {
-        return false;
+      if (typeRecherche !== "") {
+        // recuperer toutes les prestations avec le type de recherche
+        const prestationsRecherche = prestations.filter(prestation => prestation.nom === typeRecherche);
+        // Vérifier si la disponibilité correspond à l'une des prestations trouvées
+        if (!prestationsRecherche.find(prestation => prestation.id === availability.idPrestation)) {
+          return false;
+        }
       }
 
       // Si tous les critères correspondent, conserver la disponibilité

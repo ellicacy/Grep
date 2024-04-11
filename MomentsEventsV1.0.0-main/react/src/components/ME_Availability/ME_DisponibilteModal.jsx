@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import Footer from './ME_FooterDispo';
 
 
 function convertToUserTimezone(utcDate) {
@@ -12,12 +11,8 @@ function convertToUserTimezone(utcDate) {
   // Ajout du décalage horaire de l'utilisateur pour obtenir la date locale
   date.setMinutes(date.getMinutes() + userTimezoneOffset);
 
-  
-
   return date;
 }
-
-
 
 const DisponibilitesModal = ({ disponibilites, closeModal,  openReserverFormModal, onSelectedDisponibiliteChange  }) => {
 
@@ -30,14 +25,12 @@ const DisponibilitesModal = ({ disponibilites, closeModal,  openReserverFormModa
   };
   
   const handleClick = (disponibilite) => {
-    console.log('Disponibilité sélectionnée:', disponibilite);
     // stocker la disponibilité sélectionnée dans le state
     setSelectedDisponibilite(disponibilite);
    
   }
 
   const handleClickReserver = (disponibilite) => {
-    console.log('Disponibilité sélectionnée 2.0 :', disponibilite);
     openReserverFormModal();
     onSelectedDisponibiliteChange(disponibilite)
     closeModal();

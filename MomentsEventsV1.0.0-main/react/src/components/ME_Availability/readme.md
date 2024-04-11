@@ -14,7 +14,7 @@ npm install @fullcalendar/react @fullcalendar/daygrid @fullcalendar/timegrid @fu
 npm install axios 
 npm install react-modal
 
-Pour etre ne francais:
+Pour etre en francais:
 npm install @fullcalendar/core @fullcalendar/daygrid @fullcalendar/timegrid @fullcalendar/interaction @fullcalendar/core @fullcalendar/core/locales/fr
 
 4. Assurez-vous que votre projet utilise un client axios configuré pour les appels API.

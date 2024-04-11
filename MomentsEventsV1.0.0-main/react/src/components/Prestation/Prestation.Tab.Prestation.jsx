@@ -200,6 +200,7 @@ export function TabPrestation(props) {
     const [selectedDate, setSelectedDate] = useState(null);
     const [selectedTitle, setSelectedTitle] = useState(null);
     const [selectedPrestataire, setSelectedPrestataire] = useState(null);
+    const [selectedPrestationId, setSelectedPrestationId] = useState(null);
     
     const capitalizeFirstLetter = (value) => {
       return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
@@ -216,7 +217,16 @@ export function TabPrestation(props) {
     try {
         
       // Récupérer les prestations depuis l'API
-        const prestationId = props.prestation.id;
+        const prestationsResponse = await axiosClient.get('/prestations');
+        const prestations = prestationsResponse.data;
+        // filtrer les prestations pour obtenir la prestation sélectionnée
+        const prestation = prestations.find(prestation => prestation.id === props.prestation.id);
+        console.log('Prestation sélectionnée 2:', prestation);
+        
+        const prestationId = prestation.id;
+        setSelectedPrestationId(prestationId);
+        console.log('idPrestation:', prestationId);
+
         const prestationTitre = props.prestation.nom;
         const prestataireId = props.prestation.id_user;
 
@@ -229,7 +239,11 @@ export function TabPrestation(props) {
         // Filtrer les disponibilités en fonction des critères de recherche
         const filteredAvailabilities = allAvailabilities.filter(availability => {
             const availabilityPrestationId = prestationId;
-            availability.idPrestation = availabilityPrestationId;
+            console.log('idPrestation:', availabilityPrestationId);
+            // Vérifier si la disponibilité correspond à la prestation sélectionnée
+            if (availability.idPrestation !== availabilityPrestationId) {
+                return false;
+            }
 
             // Vérifier si la date de la disponibilité correspond à la date de recherche
             if (dateRecherche !== "" && tous === false) {
@@ -245,6 +259,12 @@ export function TabPrestation(props) {
         if (lieuRecherche !== "" && availability.lieu !== lieuRecherche && tous === false) {
           return false;
         }
+        if (tous === true) {
+          // Vérifier si la disponibilité est déjà réservée
+          if (availability.reservationId) {
+            return false;
+          }
+        }
 
         
   
@@ -256,10 +276,10 @@ export function TabPrestation(props) {
   
       // Formater les disponibilités filtrées dans le format attendu par FullCalendar
       const formattedEvents = filteredAvailabilities.map(availability => {
-        console.log('idPer:', prestationId);
+        
 
         const prestataire = usersData.find(user => user.idPersonne === prestataireId);
-        console.log('idPer:', prestataire);
+        
         return {
           title: prestationTitre,
           dateTime: availability.dateTime, 
@@ -289,6 +309,7 @@ export function TabPrestation(props) {
   
     const handleClickTous = () => {
         const tous = true;
+
         rechercherDisponibilites(tous);
     }
     const openReserverFormModal = (date) => {

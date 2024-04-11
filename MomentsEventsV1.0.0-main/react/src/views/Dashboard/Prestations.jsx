@@ -1,8 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from "react";
 import CartePrestation from '../../components/Prestation/Carte.PrestationNew';
+import axiosClient from '../../axios-client'
 
 function Prestations() {
   const [isOpen, setIsOpen] = useState(false);
+  const [prestations, setPrestations] = useState([]);
+  const [userId, setUserId] = useState(null);
 
   const handleOpen = () => {
     setIsOpen(true);
@@ -11,6 +14,26 @@ function Prestations() {
   const handleClose = () => {
     setIsOpen(false);
   };
+  const fetchPrestations = async () => {
+    console.log('Récupération des prestations...');
+    try {
+      const prestationsResponse = await axiosClient.get('/prestations');
+      const userActuel = JSON.parse(localStorage.getItem('USER'));
+      
+      if (userActuel) {
+        const userId = userActuel.idPersonne;
+        setUserId(userId);
+        console.log('User actuel :', userActuel);
+        const prestationsUser = prestationsResponse.data.filter(prestation => prestation.id_user === userId);
+        setPrestations(prestationsUser);
+        console.log('Prestations récupérées avec succès :', prestationsUser);
+      }
+    } catch (error) {
+      console.error('Erreur lors de la récupération des prestations :', error);
+    }
+  };
+
+
   const exemplePrestation = {
     id: 1,
     nom: "Massage relaxant",
@@ -20,6 +43,11 @@ function Prestations() {
     lieu: "Paris"
   };
 
+  useEffect(() => {
+    fetchPrestations();
+  }
+    , []);
+
   return (
     <div>
       <div style={{ display: 'flex', alignItems: 'center', marginLeft: '42px', marginBottom: '35px' }}>
@@ -28,13 +56,7 @@ function Prestations() {
         {isOpen && <CartePrestation onClose={handleClose} />}
     </div>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px', justifyContent: 'center' }}>
-        <CartePrestation prestation={exemplePrestation} />
-        <CartePrestation prestation={exemplePrestation} />
-        <CartePrestation prestation={exemplePrestation} />
-        <CartePrestation prestation={exemplePrestation} />
-        <CartePrestation prestation={exemplePrestation} />
-        <CartePrestation prestation={exemplePrestation} />
-        <CartePrestation prestation={exemplePrestation} />
+        {prestations.map(prestation => <CartePrestation prestation={prestation} />)}
       </div>
     </div>
   );

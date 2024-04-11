@@ -54,6 +54,16 @@ const Calendar = () => {
 
     
     const handleEventClick = (info) => {
+        
+        const alertShownTime = localStorage.getItem("alertShownTime");
+        if (!alertShownTime || (Date.now() - alertShownTime > 5 * 60 * 1000)) {
+            // Afficher l'alerte uniquement si elle n'a pas déjà été affichée ou si elle a expiré
+            alert('Voulez-vous supprimer cet événement.');
+            
+            // Enregistrer dans le stockage local que l'alerte a été affichée
+            localStorage.setItem("alertShownTime", Date.now());
+        }
+        
         const eventId = info.event.id;
         deleteEvent(eventId);
         info.event.remove();
@@ -289,8 +299,8 @@ const Calendar = () => {
             >
                 <h2>Créer un événement</h2>
                 <p>Date sélectionnée: {selectedDate}</p>
-                <label>
-                    Prestation:
+                <label className="radio-label">
+                    <span className="radio-text">Prestation</span>
                     <select
                         id="prestation"
                         value={prestationId}
@@ -309,8 +319,9 @@ const Calendar = () => {
                         ))}
                     </select>
                 </label>
-                <div  style={{ display: 'flex', alignItems: 'center' }}>
-                <label>
+                <div  className="radio-container">
+                <label className="radio-label">
+                    <span className="radio-text">Journée entière</span>
                     <input
                         type="radio"
                         name="eventTime"
@@ -320,11 +331,11 @@ const Calendar = () => {
                             setShowTimeDropdown(false);
                         }}
                     />
-                    Journée entière
                 </label>
                 </div>
-                <div style={{display: 'flex'}} >
-                <label>
+                <div className="radio-container">
+                <label className="radio-label">
+                <span className="radio-text">Heure(s) spécéfique(s)</span> 
                     <input
                         type="radio"
                         name="eventTime"
@@ -334,7 +345,6 @@ const Calendar = () => {
                             setShowTimeDropdown(true);
                         }}
                     />
-                    Heure spécifique:  
                 </label>
                 {showTimeDropdown && (
                     <label>
@@ -380,6 +390,7 @@ const Calendar = () => {
                 <button onClick={closeModal}>Annuler</button>
 
             </Modal>
+
         </div>
     );
 };

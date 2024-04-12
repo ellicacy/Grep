@@ -5,6 +5,7 @@ Ce fichier README contient toutes les instructions pour installer et utiliser l'
 ## Prérequis
 1. Installer PHP https://www.php.net/manual/en/install.macosx.packages.php
 2. Installer Composer https://getcomposer.org/download/
+3. Installer SQLITE
 
 
 ## Installation de l'application web en local

@@ -3,8 +3,9 @@
 Ce fichier README contient toutes les instructions pour installer et utiliser l'application web Moments Events.
 
 ## Prérequis
-1. Installer PHP
-2. Installer Composer
+1. Installer PHP https://www.php.net/manual/en/install.macosx.packages.php
+2. Installer Composer https://getcomposer.org/download/
+
 
 ## Installation de l'application web en local
 

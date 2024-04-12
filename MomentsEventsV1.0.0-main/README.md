@@ -2,6 +2,10 @@
 
 Ce fichier README contient toutes les instructions pour installer et utiliser l'application web Moments Events.
 
+## Prérequis
+1. Installer PHP
+2. Installer Composer
+
 ## Installation de l'application web en local
 
 

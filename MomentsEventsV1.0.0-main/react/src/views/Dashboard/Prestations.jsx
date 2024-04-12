@@ -1,15 +1,25 @@
 import React, { useState, useEffect } from "react";
 import CartePrestation from '../../components/Prestation/Carte.PrestationNew';
 import axiosClient from '../../axios-client'
+import AjoutPrestation from "./Admin/AjoutPrestation";
+import { set } from "lodash";
 
 function Prestations() {
   const [isOpen, setIsOpen] = useState(false);
   const [prestations, setPrestations] = useState([]);
   const [userId, setUserId] = useState(null);
+  const [closeLesPrestations, setCloseLesPrestations] = useState(false);
 
   const handleOpen = () => {
     setIsOpen(true);
+    setCloseLesPrestations(true);
   };
+
+  const handleCloseLesPrestations = () => {
+    setCloseLesPrestations(false);
+  };
+
+
 
   const handleClose = () => {
     setIsOpen(false);
@@ -52,11 +62,17 @@ function Prestations() {
     <div>
       <div style={{ display: 'flex', alignItems: 'center', marginLeft: '42px', marginBottom: '35px' }}>
         <h1 style={{ marginLeft: '00px' }}>Prestations</h1>
-        <button onClick={handleOpen} style={{ marginLeft: 'auto', marginRight: '20px', padding: '10px 20px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' } }>Ajouter une prestation</button>
-        {isOpen && <CartePrestation onClose={handleClose} />}
+        {!isOpen && !closeLesPrestations && <button onClick={handleOpen} style={{ marginLeft: 'auto', marginRight: '20px', padding: '10px 20px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' } }>Ajouter une prestation</button>}
+      </div>
+      <div style={{ display: 'flex', alignItems: 'center', marginLeft: '42px', marginBottom: '35px' }}>
+        {isOpen  && <AjoutPrestation onClose={handleClose} />}
+    </div>
+    <div style={{ display: 'flex', alignItems: 'center', marginLeft: '42px', marginBottom: '35px' }}>
+    
     </div>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px', justifyContent: 'center' }}>
-        {prestations.map(prestation => <CartePrestation prestation={prestation} />)}
+      {closeLesPrestations ? null : prestations.map(prestation => <CartePrestation prestation={prestation} />)}
+
       </div>
     </div>
   );

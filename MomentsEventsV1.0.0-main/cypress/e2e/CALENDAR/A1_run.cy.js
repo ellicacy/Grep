@@ -13,8 +13,21 @@ describe('Photographer Availability Scenario', () => {
 
         // Étape 4: Julian soumet le formulaire de connexion
         // Assure-toi que le texte du bouton est exactement 'Me connecter'
+        cy.wait(2000)
         cy.contains('Me connecter').click()
+      cy.intercept('POST','/api/login', {
+         statusCode: 200,
+        body: {
+             personneLogin: 'julian@example.com',
+             password: 'passwordDeJulian123!'
+         }
+     }).then((response)=>{
+         console.log(response)
+            // cy.visit('/')
+        
+     })
         
         // Ajouter des vérifications après la connexion pour confirmer le succès
     });
 });
+

@@ -7,8 +7,8 @@ it('Mon premier test', () => {
     //     method: 'GET'
     // })
 
-    // cy.visit('http://localhost:3000')
-    cy.visit('https://keums.ch')
+     cy.visit('http://localhost:3000')
+    //cy.visit('https://keums.ch')
 
     // cy.on('uncaught:exception', (err, runnable) => { return false; })
     // cy.get('.MuiGrid-grid-sm-2\.4').click()
@@ -18,13 +18,13 @@ it('Mon premier test', () => {
     cy.contains('Se connecter').click()
 
     // cy.origin('http://localhost:3000', ()=>{
-        cy.get('input[id=":r0:"]').type('admin@gmail.com')
+        //cy.get('input[id=":r0:"]').type('admin@gmail.com')
 
-        cy.get('input[id=":r1:"]').type('admin123@')
+        //cy.get('input[id=":r1:"]').type('admin123@')
     
-        // cy.get('input[id=":r1:"]').type('admin@gmail.com')
+         cy.get('input[id=":r1:"]').type('admin@gmail.com')
     
-        // cy.get('input[id=":r3:"]').type('admin123@')
+         cy.get('input[id=":r3:"]').type('admin123@')
     
         // cy.wait(2000)
         // cy.contains('Me connecter').click()

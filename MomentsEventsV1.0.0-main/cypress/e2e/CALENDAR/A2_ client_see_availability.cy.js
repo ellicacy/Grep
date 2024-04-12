@@ -25,9 +25,7 @@ describe('Client searches for photographer availability', () => {
       // Check that Julian's availability is displayed
       // This assumes your application renders Julian's available dates in an element with id `availabilityList`
       cy.get('#availabilityList').should('contain', 'Julian');
-  
-      // For a more specific test, you could also check for specific dates if known
-      // cy.get('#availabilityList').should('contain', '2024-04-15'); // Example date
+ 
     });
   });
   

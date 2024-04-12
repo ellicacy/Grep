@@ -1,0 +1,31 @@
+describe('Photographer Availability Scenario', () => {
+    it('allows Julian to set his availability', () => {
+        // Étape 1: Julian se connecte sur l'application
+        cy.visit('/login') // Adapte l'URL à celle de ton application
+        cy.get('input[id="login"]').type('julian@example.com') // Utilise les bons sélecteurs
+        cy.get('input[id="password"]').type('password') // Utilise les bons sélecteurs
+        cy.get('button[id="submit-login"]').click()
+
+        // Étape 2: Julian accède à son panneau d'administration
+        cy.get('button[id="admin-panel"]').click()
+
+        // Étape 3: Julian crée une nouvelle prestation
+        cy.get('button[id="new-service"]').click()
+        cy.get('input[id="title"]').type('Photographe')
+        // Complète les informations manquantes ici...
+
+        // Étape 4: Julian renseigne ses indisponibilités
+        cy.get('button[id="calendar"]').click()
+        // Il faudra définir comment Julian peut renseigner ses indisponibilités
+        // Peut-être quelque chose comme ceci :
+        cy.get('input[id="start-date"]').type('2024-03-05')
+        cy.get('input[id="end-date"]').type('2024-03-08')
+        // Il faudra répéter pour les autres dates d'indisponibilité
+
+        // Étape 5: Julian poste la prestation
+        cy.get('button[id="submit-service"]').click()
+        
+        // Étape 6: Vérification que la prestation a bien été postée
+        // Cela peut nécessiter d'intercepter une requête réseau ou de vérifier un élément dans l'UI
+    })
+})

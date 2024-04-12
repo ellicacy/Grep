@@ -7,7 +7,7 @@ describe('Client Search for Photographer Availability', () => {
       cy.contains('Se connecter').click()
 
       // Étape 3: Margot entre ses informations de connexion
-      cy.get('input[id=":r0:"]').type('margot@example.com')
+      cy.get('input[id=":r0:"]').type('margot2@example.com')
       cy.get('input[id=":r1:"]').type('passwordDeMargot123!')
 
       // Étape 4: Margot soumet le formulaire de connexion

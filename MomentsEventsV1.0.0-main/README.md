@@ -16,6 +16,7 @@ Ce fichier README contient toutes les instructions pour installer et utiliser l'
 3. Ouvrir le terminal dans Visual Studio Code.
 4. Exécuter la commande `composer install` pour installer Composer, en veillant à bien être à la racine du projet.
 5. Configurer le fichier `.env` (à la racine du projet) pour faire fonctionner l'application (connexion Payrexx, connexion base de données, connexion service mail).
+5.1 Les .env.exemple enlever le .exemple
 6. Exécuter la commande `php artisan migrate` pour effectuer les migrations de la base de données (répondre Y si demandé).
 7. Exécuter la commande `php artisan serve` pour lancer le serveur Laravel.
 8. Installer les dépendances de React.

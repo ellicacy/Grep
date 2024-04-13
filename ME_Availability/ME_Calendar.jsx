@@ -335,7 +335,7 @@ const Calendar = () => {
                 </div>
                 <div className="radio-container">
                 <label className="radio-label">
-                <span className="radio-text">Heure(s) spécéfique(s)</span> 
+                <span className="radio-text">Heure(s) spécifique(s)</span> 
                     <input
                         type="radio"
                         name="eventTime"

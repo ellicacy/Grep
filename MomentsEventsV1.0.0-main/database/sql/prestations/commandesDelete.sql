@@ -1,2 +1,2 @@
-DELETE FROM prestation
-WHERE id_cat = 20
+DELETE FROM prestations
+WHERE id_user = 3

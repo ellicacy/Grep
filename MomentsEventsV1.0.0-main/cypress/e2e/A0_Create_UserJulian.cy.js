@@ -20,7 +20,7 @@ describe('User Registration Scenario', () => {
 
         // L'utilisateur test remplit le reste du formulaire
         cy.get('input#email').type('julian@example.com')
-        cy.get('input#password').type('Password123!')
+        cy.get('input#password').type('passwordDeJulian123!')
         cy.get('input#passwordConfirmation').type('passwordDeJulian123!')
         cy.wait(3000) // Délai pour la démonstration
 

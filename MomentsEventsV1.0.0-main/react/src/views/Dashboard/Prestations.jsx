@@ -62,7 +62,7 @@ function Prestations() {
     <div>
       <div style={{ display: 'flex', alignItems: 'center', marginLeft: '42px', marginBottom: '35px' }}>
         <h1 style={{ marginLeft: '00px' }}>Prestations</h1>
-        {!isOpen && !closeLesPrestations && <button onClick={handleOpen} style={{ marginLeft: 'auto', marginRight: '20px', padding: '10px 20px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' } }>Ajouter une prestation</button>}
+        {/*{!isOpen && !closeLesPrestations && <button onClick={handleOpen} style={{ marginLeft: 'auto', marginRight: '20px', padding: '10px 20px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' } }>Ajouter une prestation</button>}*/}
       </div>
       <div style={{ display: 'flex', alignItems: 'center', marginLeft: '42px', marginBottom: '35px' }}>
         {isOpen  && <AjoutPrestation onClose={handleClose} />}

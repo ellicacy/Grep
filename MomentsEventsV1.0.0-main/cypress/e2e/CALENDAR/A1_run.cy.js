@@ -58,7 +58,7 @@ describe('Photographer Availability Scenario', () => {
 
         // Étape 14: Julian sélectionne le 19 avril pour définir une nouvelle disponibilité
         // Utilisez l'attribut 'data-date' pour cibler le jour spécifique dans votre calendrier FullCalendar
-        cy.get(`[data-date="2024-04-19"]`).click();
+        cy.get(`[data-date="2024-05-17"]`).click();
 
         // Étape 15: Julian sélectionne à nouveau la prestation "Photographe" dans le modal
         // Réutilisez la même commande que l'étape 11 s'il s'agit du même élément modal réutilisé.

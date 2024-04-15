@@ -1,2 +1,2 @@
 DELETE FROM prestations
-WHERE id_user = 3
+WHERE id_user = 1;

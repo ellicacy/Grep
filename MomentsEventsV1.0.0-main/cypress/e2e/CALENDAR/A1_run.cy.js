@@ -41,6 +41,8 @@ describe('Photographer Availability Scenario', () => {
 
         // Étape 10: Julian clique sur le jour 15 avril dans le calendrier
         cy.get('.fc-day[data-date="2024-04-17"]').click();
+        // Étape 10: Julian clique sur le jour 20 avril dans le calendrier
+        cy.get('.fc-day[data-date="2024-04-20"]').click();
         cy.wait(10); // Attente pour voir le modal ou le composant de sélection de disponibilité
 
         // Étape 11: Julian sélectionne la prestation "Photographe" dans le modal

@@ -42,6 +42,7 @@ const Calendar = () => {
     const [prestation, setPrestation] = useState('');
     const [isMounted, setIsMounted] = useState(false);
     const [userId, setUserId] = useState(null);
+    const [specificTime, setSpecificTime] = useState(false);
 
     const openModal = (date) => {
         setSelectedDate(date);
@@ -324,6 +325,7 @@ const Calendar = () => {
                     <span className="radio-text">Journée entière</span>
                     <input
                         type="radio"
+                        value="allDay"
                         name="eventTime"
                         checked={allDay}
                         onChange={() => {
@@ -339,6 +341,7 @@ const Calendar = () => {
                     <input
                         type="radio"
                         name="eventTime"
+                        value="specificTime"
                         checked={!allDay}
                         onChange={() => {
                             setAllDay(false);

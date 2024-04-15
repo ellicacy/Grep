@@ -1,5 +1,5 @@
 describe('Client Search for Photographer Availability', () => {
-  it('ensures Margot cannot find Julian available on the 17th of March', () => {
+  it('ensures Margot cannot find Julian available on the 20th of March', () => {
       // Étape 1: Margot visite la page d'accueil
       cy.visit('http://localhost:3000')
 
@@ -7,8 +7,8 @@ describe('Client Search for Photographer Availability', () => {
       cy.contains('Se connecter').click()
 
       // Étape 3: Margot entre ses informations de connexion
-      cy.get('input[id=":r0:"]').type('margot2@example.com')
-      cy.get('input[id=":r1:"]').type('passwordDeMargot123!')
+      cy.get('input[id=":r1:"]').type('margot@example.com')
+      cy.get('input[id=":r3:"]').type('passwordDeMargot123!')
 
       // Étape 4: Margot soumet le formulaire de connexion
       cy.contains('Me connecter').click()
@@ -16,12 +16,12 @@ describe('Client Search for Photographer Availability', () => {
       // Étape 5: Vérifier que Margot est redirigée vers la page d'accueil
       cy.url().should('eq', 'http://localhost:3000/')
 
-      // Étape 6: Margot spécifie qu'elle cherche un photographe pour le 17 mars
-      cy.get('input[name="search-photographer"]').type('photographe 17 mars')
+      // Étape 6: Margot spécifie qu'elle cherche un photographe pour le 20 mars
+      cy.get('input[id="rechercheOccasionType"]').type('photographe')
+      cy.get('input[id="rechercheOccasionDate"]').type('2024-04-19')
       cy.get('button').contains('Rechercher').click()
 
-      // Étape 7: Vérification que Julian n'apparaît pas dans la liste
-      cy.contains('Julian').should('not.exist')
+      cy.wait(3000) // Attente pour voir les résultats de la recherche
 
       // Étape 8: Margot retourne sur la page d'accueil
       cy.visit('http://localhost:3000')

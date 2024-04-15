@@ -10,7 +10,7 @@ describe('Photographer Availability Scenario', () => {
 
       // Étape 3: Julian entre ses informations de connexion
       cy.get('input[id=":r1:"]').type('amelie@example.com')
-      cy.get('input[id=":r3:"]').type('passwordDeJulian123!')
+      cy.get('input[id=":r3:"]').type('passwordDeAmelie123!')
       cy.wait(10) // Attente après avoir saisi les informations de connexion
 
       // Étape 4: Julian soumet le formulaire de connexion

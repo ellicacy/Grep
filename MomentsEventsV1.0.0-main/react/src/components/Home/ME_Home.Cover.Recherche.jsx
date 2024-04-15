@@ -51,8 +51,10 @@ export default function BarreRecherche() {
 const closeModal = () => {
     setModalIsOpen(false);
 };
-const rechercherDisponibilites = async () => {
+const rechercherDisponibilites = async (nextDate) => {
   try {
+    
+    
     // Récupérer les prestations depuis l'API
     const prestationsResponse = await axiosClient.get('/prestations');
     const prestations = prestationsResponse.data;
@@ -69,6 +71,16 @@ const rechercherDisponibilites = async () => {
     console.log('ttire presta:', prestations.nom);
     // Filtrer les disponibilités en fonction des critères de recherche
     const filteredAvailabilities = allAvailabilities.filter(availability => {
+
+      console.log('next day ', nextDate);
+      console.log('dateRecherche', dateRecherche);
+      if (nextDate !== "") {
+        console.log('in the if');
+        dateRecherche = nextDate; 
+        console.log('dateRecherche', dateRecherche);
+        nextDate = ""; // Réinitialiser nextDate pour éviter de la répéter sur chaque itération
+      }
+
       // Vérifier si la date de la disponibilité correspond à la date de recherche
       if (dateRecherche !== "") {
         const selectedDate = new Date(dateRecherche);
@@ -108,6 +120,8 @@ const rechercherDisponibilites = async () => {
           return false;
         }
       }
+
+      
 
       // Si tous les critères correspondent, conserver la disponibilité
       return true;
@@ -158,7 +172,7 @@ const rechercherDisponibilites = async () => {
 
 
   const handleClick = () => {
-    rechercherDisponibilites();
+    rechercherDisponibilites("");
   }
 
   const openReserverFormModal = (date) => {
@@ -178,6 +192,15 @@ const onSelectedDisponibiliteChange = (date) => {
   setSelectedPrestataire(date.prestataire);
 
 }
+const recherchePlusTard = () => {
+  const nextDate = new Date(dateRecherche);
+  nextDate.setDate(nextDate.getDate() + 1);
+
+  rechercherDisponibilites(nextDate.toISOString().split('T')[0]);
+  setShowDisponibilites(false);
+  setShowDisponibilites(true);
+}
+
 
 
   return (
@@ -372,7 +395,7 @@ const onSelectedDisponibiliteChange = (date) => {
                       closeModal={closeModal}
                       openReserverFormModal={openReserverFormModal} 
                       onSelectedDisponibiliteChange={onSelectedDisponibiliteChange}
-
+                      recherchePlusTard={recherchePlusTard}
                   />
                   
               </div>
@@ -388,6 +411,7 @@ const onSelectedDisponibiliteChange = (date) => {
               selectedPrestataire={selectedPrestataire}
               disponibilites={disponibilites}
               setDisponibilites={setDisponibilites}
+              
               
             />
           </Modal>

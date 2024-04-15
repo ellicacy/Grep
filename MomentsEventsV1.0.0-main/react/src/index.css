@@ -430,3 +430,6 @@ header .nav-btn {
     color: #333;
     margin-right: 15px;
 }
+.ButtonRechercheProDispobible {
+    align-items: center;
+}

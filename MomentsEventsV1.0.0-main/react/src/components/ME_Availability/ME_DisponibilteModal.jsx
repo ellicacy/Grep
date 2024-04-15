@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-
+import "../../index.css"
+import { set } from 'lodash';
 
 function convertToUserTimezone(utcDate) {
   // Création d'un nouvel objet Date à partir de la date UTC
@@ -14,10 +15,11 @@ function convertToUserTimezone(utcDate) {
   return date;
 }
 
-const DisponibilitesModal = ({ disponibilites, closeModal,  openReserverFormModal, onSelectedDisponibiliteChange  }) => {
+const DisponibilitesModal = ({ disponibilites, closeModal,  openReserverFormModal, onSelectedDisponibiliteChange, recherchePlusTard  }) => {
 
   const [selectedDisponibilite, setSelectedDisponibilite] = useState(null);
-
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [selectedOccasionType, setSelectedOccasionType] = useState(null);
 
   const formatDateString = (dateString) => {
     const date = new Date(dateString);
@@ -37,12 +39,18 @@ const DisponibilitesModal = ({ disponibilites, closeModal,  openReserverFormModa
 
   };
 
+
+
+
   
 
   if (disponibilites.length === 0) {
     return (
       <div>
         <p>Aucune disponibilité trouvée pour le moment.</p>
+        <br />
+        <button className='ButtonRechercheProDispo' onClick={recherchePlusTard}>Voir les prochaines disponibilités</button>
+
         {/*
           <p>Afficher les dates de disponibilite suivante?</p>
           <button>Oui</button>
@@ -75,6 +83,15 @@ const DisponibilitesModal = ({ disponibilites, closeModal,  openReserverFormModa
             </tr>
           ))}
         </tbody>
+        <div> 
+        <button onClick={recherchePlusTard}>Voir les prochaines disponibilités</button>
+        </div>
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
       </table>
       <style>{`
         .dateEtTitre:hover{

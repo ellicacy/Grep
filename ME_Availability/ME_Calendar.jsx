@@ -58,7 +58,7 @@ const Calendar = () => {
         const alertShownTime = localStorage.getItem("alertShownTime");
         if (!alertShownTime || (Date.now() - alertShownTime > 5 * 60 * 1000)) {
             // Afficher l'alerte uniquement si elle n'a pas déjà été affichée ou si elle a expiré
-            alert('Voulez-vous supprimer cet événement.');
+            alert('Voulez-allez supprimer cet événement.');
             
             // Enregistrer dans le stockage local que l'alerte a été affichée
             localStorage.setItem("alertShownTime", Date.now());

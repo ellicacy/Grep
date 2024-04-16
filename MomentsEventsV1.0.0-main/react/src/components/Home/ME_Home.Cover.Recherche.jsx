@@ -3,7 +3,7 @@ import React from 'react'
 import { TextField } from '@mui/material';
 import { Link, Typography } from '@mui/material';
 import theme from '../../theme.jsx';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import axiosClient from '../../axios-client.js'
 import DisponibilitesModal from '../ME_Availability/ME_DisponibilteModal.jsx';
 import Modal from "react-modal";
@@ -72,14 +72,16 @@ const rechercherDisponibilites = async (nextDate) => {
     // Filtrer les disponibilités en fonction des critères de recherche
     const filteredAvailabilities = allAvailabilities.filter(availability => {
 
-      console.log('next day ', nextDate);
-      console.log('dateRecherche', dateRecherche);
       if (nextDate !== "") {
         console.log('in the if');
-        dateRecherche = nextDate; 
+        console.log('nextDate', nextDate);
+        setDateRecherche(nextDate); 
+
         console.log('dateRecherche', dateRecherche);
-        nextDate = ""; // Réinitialiser nextDate pour éviter de la répéter sur chaque itération
+
+        //nextDate = ""; // Réinitialiser nextDate pour éviter de la répéter sur chaque itération
       }
+      console.log('dateRecherche', dateRecherche);
 
       // Vérifier si la date de la disponibilité correspond à la date de recherche
       if (dateRecherche !== "") {
@@ -122,6 +124,7 @@ const rechercherDisponibilites = async (nextDate) => {
       }
 
       
+      
 
       // Si tous les critères correspondent, conserver la disponibilité
       return true;
@@ -146,6 +149,9 @@ const rechercherDisponibilites = async (nextDate) => {
 
     // Mettre à jour l'état des disponibilités avec les données formatées
     setDisponibilites(formattedEvents);
+    if (nextDate !== "") {
+      setShowDisponibilites(true);
+    }
 
     /* trop de demande pour le serveur
     if (formattedEvents.length === 0) {
@@ -195,12 +201,17 @@ const onSelectedDisponibiliteChange = (date) => {
 const recherchePlusTard = () => {
   const nextDate = new Date(dateRecherche);
   nextDate.setDate(nextDate.getDate() + 1);
-
-  rechercherDisponibilites(nextDate.toISOString().split('T')[0]);
   setShowDisponibilites(false);
-  setShowDisponibilites(true);
+  rechercherDisponibilites(nextDate.toISOString().split('T')[0]);
+  
+  
 }
 
+
+useEffect(() => {
+  console.log('dateRecherche use efffect', dateRecherche);
+
+}, [dateRecherche]); 
 
 
   return (

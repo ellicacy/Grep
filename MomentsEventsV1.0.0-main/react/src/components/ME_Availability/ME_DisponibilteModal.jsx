@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import "../../index.css"
 import { set } from 'lodash';
-
+import axiosClient from '../../axios-client';
+import Prestations from '../../views/Dashboard/Prestations';
 function convertToUserTimezone(utcDate) {
   // Création d'un nouvel objet Date à partir de la date UTC
   const date = new Date(utcDate);
@@ -39,6 +40,13 @@ const DisponibilitesModal = ({ disponibilites, closeModal,  openReserverFormModa
 
   };
 
+  const handleClickPresta = (prestation) => {
+    console.log("Presta")
+    const prestataire = prestation
+    console.log(prestataire)
+    //Prestations(prestataire)
+  }
+
 
 
 
@@ -74,7 +82,9 @@ const DisponibilitesModal = ({ disponibilites, closeModal,  openReserverFormModa
             <tr key={index} onClick={() => handleClick(disponibilite)} className="dateEtTitre" >
               <td >{disponibilite.title}</td>
               <td >{formatDateString(convertToUserTimezone(disponibilite.dateTime))}</td>
-              <td>{disponibilite.prestataire}</td> 
+              <td onClick={()=> 
+                handleClickPresta(disponibilite.prestataire)
+                } >{disponibilite.prestataire}</td> 
               <td>
               <button onClick={() => handleClickReserver(disponibilite)}>
                 Réserver

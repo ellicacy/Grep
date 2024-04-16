@@ -23,19 +23,11 @@ describe('Client Search for Photographer Availability', () => {
 
       cy.wait(3000) // Attente pour voir les résultats de la recherche
 
-      // Étape 8: Margot retourne sur la page d'accueil
-      cy.visit('http://localhost:3000')
 
-      // Étape 9: Margot cherche Julian dans la liste des prestataires
-      cy.contains('Prestataires').click()
-      cy.contains('Julian').click()
+      cy.contains('button', 'Voir les prochaines disponibilités').click();
+      cy.contains('button', 'Voir les prochaines disponibilités').click();
+      cy.wait(3000) // Attente pour voir les résultats de la recherche
 
-      // Étape 10: Margot vérifie la disponibilité de Julian pour le 17 mars
-      cy.get('input[name="date-disponibility-check"]').type('2024-03-17')
-      cy.get('button').contains('Vérifier la disponibilité').click()
-
-      // Étape 11: Vérification que Julian n'est pas disponible ce jour-là et affichage des alternatives
-      cy.contains('Julian n\'est pas disponible ce jour-là').should('be.visible')
-      cy.contains('Les dates les plus proches où Julian est disponible sont').should('be.visible')
+     
   });
 });

@@ -16,7 +16,7 @@ describe('Client Search for Photographer Availability', () => {
       // Étape 5: Vérifier que Margot est redirigée vers la page d'accueil
       cy.url().should('eq', 'http://localhost:3000/')
 
-      // Étape 6: Margot spécifie qu'elle cherche un photographe pour le 20 mars
+      // Étape 6: Margot spécifie qu'elle cherche un photographe pour le 19 mars
       cy.get('input[id="rechercheOccasionType"]').type('photographe')
       cy.get('input[id="rechercheOccasionDate"]').type('2024-04-19')
       cy.get('button').contains('Rechercher').click()

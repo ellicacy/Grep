@@ -14,7 +14,7 @@ describe('User Registration Scenario', () => {
 
         // L'utilisateur test remplit le formulaire d'inscription
         cy.get('input#nom').type('Test')
-        cy.get('input#prenom').type('Utilisateur')
+        cy.get('input#prenom').type('Amelie')
         cy.get('input#dateNaissance').type('1998-09-17') // Saisie directe de la date
         cy.wait(3000) // Délai pour la démonstration
 

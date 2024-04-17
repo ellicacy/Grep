@@ -112,7 +112,7 @@ const Calendar = () => {
 
         if (existingEvent) {
             // Si un événement existe, demandez à l'utilisateur de confirmer la suppression
-            if (window.confirm("Voulez-vous supprimer cette disponibilité ?")) {
+            if (window.confirm("Vous allez supprimer cette disponibilité.")) {
                 // Supprimez l'événement du state et de la base de données
                 handleConfirmDelete(existingEvent);
             }

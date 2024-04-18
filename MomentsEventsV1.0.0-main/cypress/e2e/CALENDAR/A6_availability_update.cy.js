@@ -36,16 +36,12 @@ describe('Photographer Availability Scenario', () => {
 
       // Étape 10: Julian clique sur les disponibilités de 08h, 09h et 10h pour le 22 avril
 const date = '2024-04-22'; // La date pour laquelle Julian veut retirer les disponibilités
-const times = ['08 h', '09 h', '10 h']; // Les heures des disponibilités à retirer
+const times = ['07 h', '08 h', '09 h']; // Les heures des disponibilités à retirer
 
 times.forEach(time => {
   cy.get(`.fc-day[data-date="${date}"]`).contains(time).click();
   cy.wait(10); // Attente pour la fenêtre de confirmation de l'heure spécifique
 
-  // Supposer qu'il y a une boîte de dialogue avec un bouton de confirmation pour chaque heure
-  // Remplacer '.confirm-button-selector' par le sélecteur approprié pour le bouton de confirmation
-  cy.get('.confirm-button-selector').click(); 
-  cy.wait(10); // Attente après la confirmation du retrait de l'événement de l'heure spécifique
 });
 
     });

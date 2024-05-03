@@ -6,7 +6,7 @@ const ME_FormPack = ({ prestation }) => {
     const [formData, setFormData] = useState({
         name: "",
         description: "",
-        priceType: "", 
+        priceType: "",
         priceValue: 0,
         maxQuantity: 0,
         prestations: []
@@ -16,20 +16,20 @@ const ME_FormPack = ({ prestation }) => {
     const [userId, setUserId] = useState(null);
     const [prestationsId, setPrestationsId] = useState([]);
 
- 
+
     const selectPrestation = async () => {
         try {
             const prestationsResponse = await axiosClient.get('/prestations');
             const user = JSON.parse(localStorage.getItem("USER"));
             let userPrestations = [];
             if (user) {
-                
+
                 const userIdP = user.idPersonne;
                 console.log('user id '+userIdP);
                 setUserId(userIdP);
                 userPrestations = prestationsResponse.data.filter(prestation => prestation.id_user === userIdP);
 
-            }    
+            }
             setPrestations(userPrestations); // Mettez à jour le state avec les données des prestations
         } catch (error) {
             console.error('Erreur lors de la récupération des prestations :', error);
@@ -48,16 +48,16 @@ const ME_FormPack = ({ prestation }) => {
         }
     };
 
-    
+
 
     const insertPack = async () => {
- 
+
         console.log('Insertion du pack...');
         console.log('tableau id :', prestationsId);
         console.log('formData :', formData);
         try {
             if (formData.priceType === "unitaire") {
-                
+
                 const response = await axiosClient.post('/packs', {
                     name: formData.name,
                     description: formData.description,
@@ -76,8 +76,8 @@ const ME_FormPack = ({ prestation }) => {
                 });
                 console.log('Pack inséré avec succès :', response);
             }
-           
-            
+
+
         } catch (error) {
             console.error('Erreur lors de l\'insertion du pack :', error);
         }
@@ -107,7 +107,7 @@ const ME_FormPack = ({ prestation }) => {
         console.log('submit...');
         event.preventDefault();
         await insertPack();
-        
+
     };
 
     useEffect(() => {
@@ -126,8 +126,8 @@ const ME_FormPack = ({ prestation }) => {
                     Voulez-vous lier des prestations à ce pack ?
                 </label>
                 <div>
-                
-                <button 
+
+                <button
                     type = "button"
                     className="button"
                     style={{ marginRight: "10px", backgroundColor: showList ? "#4a4a4a" : "#C0C0C0" }}

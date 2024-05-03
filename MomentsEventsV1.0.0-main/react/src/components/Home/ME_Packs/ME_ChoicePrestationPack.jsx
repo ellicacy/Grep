@@ -28,13 +28,13 @@ const ME_ChoicePrestationPack = () => {
             const user = JSON.parse(localStorage.getItem("USER"));
             let userPrestations = [];
             if (user) {
-                
+
                 const userIdP = user.idPersonne;
                 console.log('user id '+userIdP);
                 setUserId(userIdP);
                 userPrestations = prestationsResponse.data.filter(prestation => prestation.id_user === userIdP);
                 console.log('Prestations récupérées avec succès :', prestationsResponse);
-            }    
+            }
             setPrestations(userPrestations); // Mettez à jour le state avec les données des prestations
         } catch (error) {
             console.error('Erreur lors de la récupération des prestations :', error);
@@ -61,26 +61,26 @@ const ME_ChoicePrestationPack = () => {
         <div>
             <h1 style={{ cursor: 'default' }}>Liste des prestations</h1>
             <p style={{ cursor: 'default' }}>Cliquez sur la prestation pour lui créer un pack</p>
-        
+
             <ul>
                 {prestations.map((prestation, index) => (
                     <li
-                    onClick={() => handlePrestationClick(prestation)} 
+                    onClick={() => handlePrestationClick(prestation)}
                     key={index}
                     onMouseEnter={() => handlePrestationMouseEnter(index)}
                     onMouseLeave={handlePrestationMouseLeave}
-                    style={{ 
+                    style={{
                         backgroundColor: hoveredIndex === index ? "#e5e5e5" : "transparent",
                         cursor: "pointer"
-                    }} 
+                    }}
                 >
-                    <strong>{prestation.nom}</strong> - {prestation.description} 
+                    <strong>{prestation.nom}</strong> - {prestation.description}
                 </li>
                 ))}
             </ul>
             <button onClick={handleBack}>Retour</button>
 
-            {showForm && <ME_FormPack prestation={selectedPrestation} key={formKey}/>} 
+            {showForm && <ME_FormPack prestation={selectedPrestation} key={formKey}/>}
         </div>
         // creer un bouton retour en bas de la page pour retourner à la liste des packs
 

@@ -6,6 +6,7 @@ import { BsStar } from "react-icons/bs";
 import { BsStarHalf } from "react-icons/bs";
 import Grid from '@mui/material/Grid';
 
+
 import { notes } from '../../outils/notes';
 
 const useStyles = makeStyles({

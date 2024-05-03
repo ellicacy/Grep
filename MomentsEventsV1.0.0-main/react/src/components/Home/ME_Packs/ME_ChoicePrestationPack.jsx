@@ -28,7 +28,6 @@ const ME_ChoicePrestationPack = () => {
             const user = JSON.parse(localStorage.getItem("USER"));
             let userPrestations = [];
             if (user) {
-
                 const userIdP = user.idPersonne;
                 console.log('user id '+userIdP);
                 setUserId(userIdP);

@@ -6,9 +6,15 @@ const ME_FormPack = ({ prestation }) => {
     const [formData, setFormData] = useState({
         name: "",
         description: "",
-        fixedPrice: 0
+        priceType: "", 
+        priceValue: 0,
+        maxQuantity: 0,
+        prestations: []
     });
-
+    const [showList, setShowList] = useState(false);
+    const [prestations, setPrestations] = useState([]);
+    const [userId, setUserId] = useState(null);
+    let prestationsId = [];
 
     const handleSubmit = (event) => {
         event.preventDefault();
@@ -16,24 +22,72 @@ const ME_FormPack = ({ prestation }) => {
         
     };
 
-    const insertPack = async () => {
-        const id_prestation = prestation.id;
+    const selectPrestation = async () => {
+        console.log('Récupération des prestations...');
+        
         try {
-            const response = await axiosClient.post('/packs', {
-                name: formData.name,
-                description: formData.description,
-                fixedPrice: formData.fixedPrice
-            });
-            const response2 = await axiosClient.post('/pack_prestation', {
-                id_pack: response.data.id,
-                id_prestation: id_prestation
-            });
-            console.log('Pack inséré avec succès :', response2);
+            const prestationsResponse = await axiosClient.get('/prestations');
+            const user = JSON.parse(localStorage.getItem("USER"));
+            let userPrestations = [];
+            if (user) {
+                
+                const userIdP = user.idPersonne;
+                console.log('user id '+userIdP);
+                setUserId(userIdP);
+                userPrestations = prestationsResponse.data.filter(prestation => prestation.id_user === userIdP);
+                console.log('Prestations récupérées avec succès :', prestationsResponse);
+            }    
+            setPrestations(userPrestations); // Mettez à jour le state avec les données des prestations
+        } catch (error) {
+            console.error('Erreur lors de la récupération des prestations :', error);
+        }
+    }
+
+    const handlePrestationSelect = (event) => {
+
+        prestationsId.push(event.target.value);
+        console.log('prestationsId :', prestationsId);
+    };
+
+    const insertPack = async () => {
+ 
+        console.log('Insertion du pack...');
+        console.log('tableau id :', prestationsId);
+        try {
+            if (formData.priceType === "unitaire") {
+                
+                const response = await axiosClient.post('/packs', {
+                    name: formData.name,
+                    description: formData.description,
+                    prix_unite: formData.priceValue,
+                    unite_Max: formData.maxQuantity,
+                    prestations: prestationsId
+                });
+                console.log('Pack inséré avec succès :', response);
+            }
+            else {
+                const response = await axiosClient.post('/packs', {
+                    name: formData.name,
+                    description: formData.description,
+                    prix_fixe: formData.priceValue,
+                    unite_Max: formData.maxQuantity,
+                    prestations: prestationsId
+                });
+                console.log('Pack inséré avec succès :', response);
+            }
+           
             
         } catch (error) {
             console.error('Erreur lors de l\'insertion du pack :', error);
         }
     }
+
+    const handlePriceTypeChange = (priceType) => {
+        setFormData({
+            ...formData,
+            priceType: priceType
+        });
+    };
 
     const handleChange = (event) => {
         setFormData({
@@ -42,21 +96,74 @@ const ME_FormPack = ({ prestation }) => {
         });
     };
 
+    const handleShowListChange = (value) => {
+        selectPrestation();
+        setShowList(value === "oui");
+    };
+
     return (
         <div>
             <h1>Création de pack pour {prestation.nom}</h1>
-            <form>
+            <form onSubmit={handleSubmit}>
             <label>
-                    Nom:
-                    <input type="text" name="name" value={formData.name} onChange={handleChange} />
+                Nom:
+                <input type="text" name="name" value={formData.name} onChange={handleChange} />
                 </label>
+                <div>
+                <button 
+                    className="button"
+                    style={{ marginRight: "10px", backgroundColor: showList ? "#4a4a4a" : "#C0C0C0" }}
+                    onClick={() => handleShowListChange("oui")}
+                >
+                    Oui
+                </button>
+                <button
+                    className="button"
+                    style={{ backgroundColor: !showList ? "#4a4a4a" : "#C0C0C0" }}
+                    onClick={() => handleShowListChange("non")}
+                >
+                    Non
+                </button>
+                </div>
+                    {showList && (
+                    <ul style={{ listStyleType: 'none' }}>
+                        {prestations.map((prestation, index) => (
+                            <li key={index}>
+                             <label style={{ display: 'flex' }}>
+                                <div>
+                                    <input
+                                        type="checkbox"
+                                        name="prestations"
+                                        value={prestation.id}
+                                        onChange={handlePrestationSelect}
+                                    />
+                                </div>
+                                <div style={{ marginLeft: "20px" }}>
+                                    {prestation.nom}
+                                </div>
+                            </label>
+                            </li>
+                        ))}
+                    </ul>
+                )}
+
                 <label>
                     Description:
                     <input type="text" name="description" value={formData.description} onChange={handleChange} />
                 </label>
+                <div>
+                    <button type="button" className="button" onClick={() => handlePriceTypeChange("unitaire")} style={{ backgroundColor: formData.priceType === "unitaire" ? "#4a4a4a" : "#C0C0C0" }}>Prix Unitaire</button>
+                    <button type="button" className="button" onClick={() => handlePriceTypeChange("fixe")} style={{ backgroundColor: formData.priceType === "fixe" ? "#4a4a4a" : "#C0C0C0" }}>Prix Fixe</button>
+                </div>
+                {formData.priceType === "unitaire" && (
+                    <label>
+                        Nombre maximum de personnes:
+                        <input type="number" name="maxQuantity" value={formData.maxQuantity} onChange={handleChange} />
+                    </label>
+                )}
                 <label>
-                    Prix Fixe:
-                    <input type="number" name="fixedPrice" value={formData.fixedPrice} onChange={handleChange} />
+                    Montant:
+                    <input type="number" name="priceValue" value={formData.priceValue} onChange={handleChange} />
                 </label>
                 <input type="submit" value="Submit" />
             </form>

@@ -16,6 +16,7 @@ const ME_ChoicePrestationPack = () => {
 
     const handleBack = () => {
         console.log('Retour à la liste des packs');
+        window.location.href = "/packs";
     }
 
     const fetchPrestations = async () => {

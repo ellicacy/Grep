@@ -433,3 +433,25 @@ header .nav-btn {
 .ButtonRechercheProDispobible {
     align-items: center;
 }
+
+.button-container {
+    display: flex;
+
+  }
+  
+  .button {
+    padding: 10px 20px;
+    margin-right: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    background-color: rgb(157, 151, 151); /* Couleur de fond des boutons */
+    color: white; /* Couleur du texte des boutons */
+    transition: background-color 0.4s; /* Transition de la couleur de fond */
+  }
+  
+  /* Style lorsque le bouton est survolé */
+  .button:hover {
+    background-color: #4a4a4a; /* Couleur de fond modifiée lors du survol */
+  }

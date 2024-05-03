@@ -16,15 +16,8 @@ const ME_FormPack = ({ prestation }) => {
     const [userId, setUserId] = useState(null);
     const [prestationsId, setPrestationsId] = useState([]);
 
-    const handleSubmit = (event) => {
-        event.preventDefault();
-        insertPack();
-        
-    };
-
+ 
     const selectPrestation = async () => {
-        console.log('Récupération des prestations...');
-        
         try {
             const prestationsResponse = await axiosClient.get('/prestations');
             const user = JSON.parse(localStorage.getItem("USER"));
@@ -35,7 +28,7 @@ const ME_FormPack = ({ prestation }) => {
                 console.log('user id '+userIdP);
                 setUserId(userIdP);
                 userPrestations = prestationsResponse.data.filter(prestation => prestation.id_user === userIdP);
-                console.log('Prestations récupérées avec succès :', prestationsResponse);
+
             }    
             setPrestations(userPrestations); // Mettez à jour le state avec les données des prestations
         } catch (error) {
@@ -54,6 +47,8 @@ const ME_FormPack = ({ prestation }) => {
             setPrestationsId([...prestationsId, prestId]);
         }
     };
+
+    
 
     const insertPack = async () => {
  
@@ -104,8 +99,20 @@ const ME_FormPack = ({ prestation }) => {
 
     const handleShowListChange = (value) => {
         selectPrestation();
+        setPrestationsId([prestation.id]);
         setShowList(value === "oui");
     };
+
+    const handleSubmit = async (event) => {
+        console.log('submit...');
+        event.preventDefault();
+        await insertPack();
+        
+    };
+
+    useEffect(() => {
+        setPrestationsId([prestation.id]);
+    }, []);
 
     return (
         <div>
@@ -121,6 +128,7 @@ const ME_FormPack = ({ prestation }) => {
                 <div>
                 
                 <button 
+                    type = "button"
                     className="button"
                     style={{ marginRight: "10px", backgroundColor: showList ? "#4a4a4a" : "#C0C0C0" }}
                     onClick={() => handleShowListChange("oui")}
@@ -128,6 +136,7 @@ const ME_FormPack = ({ prestation }) => {
                     Oui
                 </button>
                 <button
+                    type = "button"
                     className="button"
                     style={{ backgroundColor: !showList ? "#4a4a4a" : "#C0C0C0" }}
                     onClick={() => handleShowListChange("non")}
@@ -137,19 +146,21 @@ const ME_FormPack = ({ prestation }) => {
                 </div>
                     {showList && (
                     <ul style={{ listStyleType: 'none' }}>
-                        {prestations.map((prestation, index) => (
+                        {prestations
+                            .filter((presta) => presta.id !== prestation.id)
+                            .map((presta, index) => (
                             <li key={index}>
                              <label style={{ display: 'flex' }}>
                                 <div>
                                     <input
                                         type="checkbox"
                                         name="prestations"
-                                        value={prestation.id}
+                                        value={presta.id}
                                         onChange={handlePrestationSelect}
                                     />
                                 </div>
                                 <div style={{ marginLeft: "20px" }}>
-                                    {prestation.nom}
+                                    {presta.nom}
                                 </div>
                             </label>
                             </li>

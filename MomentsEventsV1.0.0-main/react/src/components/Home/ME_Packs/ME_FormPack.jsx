@@ -115,7 +115,11 @@ const ME_FormPack = ({ prestation }) => {
                 Nom:
                 <input type="text" name="name" value={formData.name} onChange={handleChange} />
                 </label>
+                <label>
+                    Voulez-vous lier des prestations à ce pack ?
+                </label>
                 <div>
+                
                 <button 
                     className="button"
                     style={{ marginRight: "10px", backgroundColor: showList ? "#4a4a4a" : "#C0C0C0" }}

@@ -14,7 +14,7 @@ const ME_FormPack = ({ prestation }) => {
     const [showList, setShowList] = useState(false);
     const [prestations, setPrestations] = useState([]);
     const [userId, setUserId] = useState(null);
-    let prestationsId = [];
+    const [prestationsId, setPrestationsId] = useState([]);
 
     const handleSubmit = (event) => {
         event.preventDefault();
@@ -44,15 +44,22 @@ const ME_FormPack = ({ prestation }) => {
     }
 
     const handlePrestationSelect = (event) => {
-
-        prestationsId.push(event.target.value);
-        console.log('prestationsId :', prestationsId);
+        const prestId = event.target.value;
+        // Vérifiez si la prestation est déjà sélectionnée ou désélectionnée
+        if (prestationsId.includes(prestId)) {
+            // Si la prestation est déjà sélectionnée, retirez-la du tableau
+            setPrestationsId(prestationsId.filter(id => id !== prestId));
+        } else {
+            // Si la prestation n'est pas encore sélectionnée, ajoutez-la au tableau
+            setPrestationsId([...prestationsId, prestId]);
+        }
     };
 
     const insertPack = async () => {
  
         console.log('Insertion du pack...');
         console.log('tableau id :', prestationsId);
+        console.log('formData :', formData);
         try {
             if (formData.priceType === "unitaire") {
                 
@@ -70,7 +77,6 @@ const ME_FormPack = ({ prestation }) => {
                     name: formData.name,
                     description: formData.description,
                     prix_fixe: formData.priceValue,
-                    unite_Max: formData.maxQuantity,
                     prestations: prestationsId
                 });
                 console.log('Pack inséré avec succès :', response);

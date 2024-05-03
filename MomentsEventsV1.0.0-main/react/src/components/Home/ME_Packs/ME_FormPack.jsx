@@ -122,6 +122,44 @@ const ME_FormPack = ({ prestation }) => {
                 Nom:
                 <input type="text" name="name" value={formData.name} onChange={handleChange} />
                 </label>
+                <div>
+                <button
+                    className="button"
+                    style={{ marginRight: "10px", backgroundColor: showList ? "#4a4a4a" : "#C0C0C0" }}
+                    onClick={() => handleShowListChange("oui")}
+                >
+                    Oui
+                </button>
+                <button
+                    className="button"
+                    style={{ backgroundColor: !showList ? "#4a4a4a" : "#C0C0C0" }}
+                    onClick={() => handleShowListChange("non")}
+                >
+                    Non
+                </button>
+                </div>
+                    {showList && (
+                    <ul style={{ listStyleType: 'none' }}>
+                        {prestations.map((prestation, index) => (
+                            <li key={index}>
+                             <label style={{ display: 'flex' }}>
+                                <div>
+                                    <input
+                                        type="checkbox"
+                                        name="prestations"
+                                        value={prestation.id}
+                                        onChange={handlePrestationSelect}
+                                    />
+                                </div>
+                                <div style={{ marginLeft: "20px" }}>
+                                    {prestation.nom}
+                                </div>
+                            </label>
+                            </li>
+                        ))}
+                    </ul>
+                )}
+
                 <label>
                     Voulez-vous lier des prestations à ce pack ?
                 </label>

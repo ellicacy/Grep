@@ -2,6 +2,7 @@ import React, {useState, useEffect} from "react";
 import axiosClient from "../../../axios-client";
 import "../../../index.css";
 import ME_FormPack from "./ME_FormPack";
+import { set } from "lodash";
 const ME_ChoicePrestationPack = () => {
 
     const [prestations, setPrestations] = useState([]);
@@ -9,6 +10,7 @@ const ME_ChoicePrestationPack = () => {
     const [hoveredIndex, setHoveredIndex] = useState(null);
     const [showForm, setShowForm] = useState(false);
     const [selectedPrestation, setSelectedPrestation] = useState(null);
+    const [formKey, setFormKey] = useState(0);
 
     useEffect(() => {
         fetchPrestations();
@@ -42,6 +44,7 @@ const ME_ChoicePrestationPack = () => {
     const handlePrestationClick = (prestation) => {
         console.log('Prestation cliquée :', prestation);
         setSelectedPrestation(prestation);
+        setFormKey(prevKey => prevKey + 1);
         setShowForm(true);
     }
 
@@ -77,7 +80,7 @@ const ME_ChoicePrestationPack = () => {
             </ul>
             <button onClick={handleBack}>Retour</button>
 
-            {showForm && <ME_FormPack prestation={selectedPrestation} />} 
+            {showForm && <ME_FormPack prestation={selectedPrestation} key={formKey}/>} 
         </div>
         // creer un bouton retour en bas de la page pour retourner à la liste des packs
 

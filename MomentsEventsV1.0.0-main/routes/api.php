@@ -25,6 +25,7 @@ use Payrexx\PayrexxException;
 
 
 use App\Http\Controllers\Api\AvailabilityController;
+use App\Http\Controllers\Api\NotificationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -65,8 +66,8 @@ Route::get('/search10bestScore', [PrestationController::class, 'search10bestScor
 Route::get('/reviews', [ReviewController::class, 'index']);
 Route::get('/reviews/{review}', [ReviewController::class, 'show']);
 // PACKS
-Route::get('/packs', [PackController::class, 'index']);
-Route::get('/packs/{pack}', [PackController::class, 'show']);
+#Route::get('/packs', [PackController::class, 'index']);
+#Route::get('/packs/{pack}', [PackController::class, 'show']);
 // USERS
 Route::get('/users', [UserController::class, 'index']);
 Route::get('/users/{user}', [UserController::class, 'show']);
@@ -621,3 +622,11 @@ Route::middleware(['auth:sanctum', 'isPrestataire'])->group(function () { // Uti
 });
 Route::apiResource('availabilities', AvailabilityController::class);
 Route::get('/user/{id}/prestations', [App\Http\Controllers\API\PrestationController::class, 'getPrestationsByUser']);
+
+Route::apiResource('packs', PackController::class);
+#Route::get('/packs', [PackController::class, 'index']);
+#Route::get('/packs/{pack}', [PackController::class, 'show']);
+
+Route::apiResource('notifications', NotificationController::class)->only(['store', 'destroy']);
+Route::get('/user/{user}/notifications', [NotificationController::class, 'notificationsById']);
+

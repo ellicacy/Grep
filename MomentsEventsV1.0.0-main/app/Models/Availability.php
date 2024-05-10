@@ -1,4 +1,8 @@
 <?php
+/*
+* File:    app/Models/Availability.php
+* Description: MomentsEvent Model
+*/
 
 namespace App\Models;
 

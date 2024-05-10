@@ -129,6 +129,6 @@ class AvailabilityController extends Controller
         $availability->delete();
 
         // Rediriger l'utilisateur vers une page (par exemple, la page de liste des disponibilités)
-        return response()->json(['message' => 'Disponibilité supprimée avec succès'], 200);
+        return response()->json(['message' => 'Disponibilité supprimée avec succès'], 204);
     }
 }

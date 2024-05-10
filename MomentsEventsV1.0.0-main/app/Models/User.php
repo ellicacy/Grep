@@ -69,4 +69,13 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Profession::class);
     }
+
+    /*
+    * La relation avec la classe Notification.
+    * MomentEvent
+    */
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class, 'idPersonne');
+    }
 }

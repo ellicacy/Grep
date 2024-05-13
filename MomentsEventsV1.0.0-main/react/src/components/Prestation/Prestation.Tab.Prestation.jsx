@@ -42,7 +42,7 @@ import axiosClient from '../../axios-client.js'
 import DisponibilitesModal from "../ME_Availability/ME_DisponibilteModal";
 import ReserverForm from "../ME_Reservation/ME_ReserverForm";
 import Footer from "../ME_Availability/ME_FooterDispo";
-
+import ME_AffichagePack from "../Home/ME_Packs/ME_affichagePackCarte";
 
 function convertToUserTimezone(utcDate) {
     // Création d'un nouvel objet Date à partir de la date UTC
@@ -475,6 +475,8 @@ export function TabPrestation(props) {
                             ))}
                         </Grid>
 
+                        
+
                         <Grid sx={{
                             borderBottom: 1,
                             borderColor: "#E5E7EB",
@@ -484,7 +486,11 @@ export function TabPrestation(props) {
                                 prestataire={props.prestataire}
                             />
                         </Grid>
+                        <Grid item sx={{ mt: "30px" }}>
+                            <Typography variant="h2">Pack</Typography>
+                            <ME_AffichagePack />
 
+                        </Grid>
                         <Link href="/signaler" sx={{ textDecoration: "none" }}>
                             <Grid
                                 container
@@ -499,6 +505,8 @@ export function TabPrestation(props) {
                             </Grid>
                         </Link>
                     </Grid>
+
+                    
 
                     <Grid container item direction="column" lg={4.2}>
                         <Box

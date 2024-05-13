@@ -176,6 +176,13 @@ export default function DashboardClient() {
                             <Typography variant='body1'>Prestations</Typography>
                         </Grid>
                     </Link>
+                    {/* #MomentsEvent */}
+                    {/* Lien Packs */}
+                    <Link to='/packs' style={linkStyle('/packs')}>
+                        <Grid container height={'100%'} alignItems='center' ml='30px'>
+                            <Typography variant='body1'>Packs</Typography>
+                        </Grid>
+                    </Link>
 
                     {/* #MomentsEvent */}
                     {/* Lien Disponibilitées */}
@@ -184,6 +191,7 @@ export default function DashboardClient() {
                             <Typography variant='body1'>Disponibilitées</Typography>
                         </Grid>
                     </Link>
+                    
 
 
                     {/* Lien Notifications */}

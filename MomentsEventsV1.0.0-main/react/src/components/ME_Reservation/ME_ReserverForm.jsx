@@ -11,6 +11,10 @@ const ReserverForm = ({ onClose, selectedDate, selectedTitle, selectedPrestatair
   const [option, setOption] = useState(null);
   const [packs, setPacks] = useState([]);
   const [prestations, setPrestations] = useState([]);
+  const [prestataireID, setPrestataireID] = useState(null);
+  const [time, setTime] = useState(1);
+  const [nomPersonne, setNomPersonne] = useState('');
+  const [email, setEmail] = useState('');
 
 
   const capitalizeFirstLetter = (str) => {
@@ -68,6 +72,7 @@ const ReserverForm = ({ onClose, selectedDate, selectedTitle, selectedPrestatair
       const prestationselectionne = prestations.find(prestation => prestation.id_user === prestataireId && prestation.nom === selectedTitle);
       console.log(prestationselectionne);
       const selectedPrestationId = prestationselectionne.id;
+      setPrestataireID(selectedPrestationId);
       deleteEvent(selectedPrestationId);
     }
     catch (error) {
@@ -117,11 +122,13 @@ const ReserverForm = ({ onClose, selectedDate, selectedTitle, selectedPrestatair
   const creerNotification = async () => {
 
     try {
-      const response = await axiosClient.post('/notification', {
-        title: 'Nouvelle réservation',
-        content: '',
-        idPersonne: 1,
+      const response = await axiosClient.post('/notifications', {
+        title: selectedTitle,
+        content: nomPersonne + " a réservé un(e) " + selectedTitle + " avec vous le " + selectedDate + " pour une durée de " 
+        + time + "h. Vous pouvez le/la contacté(e) à l'adresse email suivante: " + email + " pour plus d'informations",
+        idPersonne: prestataireID,
       } );
+      console.log('Notification créée avec succès :', response);
     }
     catch (error) {
       console.error('Erreur lors de la création de la notification :', error);
@@ -155,11 +162,11 @@ const ReserverForm = ({ onClose, selectedDate, selectedTitle, selectedPrestatair
 
         <label>
           Nom:
-          <input type="text" name="name" />
+          <input type="text" name="name" value={nomPersonne} onChange={(e) => setNomPersonne(e.target.value)} />
         </label>
         <label>
           Email:
-          <input type="email" name="email" />
+          <input type="email" name="email" value={email} onChange={(e) => setEmail(e.target.value)} />
         </label>
         <label>
         Date et heure:
@@ -171,7 +178,7 @@ const ReserverForm = ({ onClose, selectedDate, selectedTitle, selectedPrestatair
         />
         </label>
         <label>Selectionner le temps de la prestation    </label>
-        <select name="time"style={{ height: '70px' }}>
+        <select name="time" value={time} style={{ height: '70px' }} onChange={(e) => setTime(e.target.value)}>
             <option value='1' >1h </option>
             <option value='2'>2h </option>
             <option value='3'>3h </option>

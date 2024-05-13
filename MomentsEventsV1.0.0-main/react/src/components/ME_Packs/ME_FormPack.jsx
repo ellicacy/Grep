@@ -62,9 +62,10 @@ const ME_FormPack = ({ prestation }) => {
                     nom: formData.name,
                     description: formData.description,
                     prix_fixe: null,
-                    unite: formData.maxQuantity,
+                    unite: null,
                     prix_unite: formData.priceValue,
-                    prestations: prestationsId
+                    unite_max: formData.maxQuantity,
+                    //prestations: prestationsId
                 });
                 console.log('Pack inséré avec succès :', response);
             }
@@ -75,7 +76,8 @@ const ME_FormPack = ({ prestation }) => {
                     prix_fixe: formData.priceValue,
                     unite: null,
                     prix_unite: null,
-                    prestations: prestationsId
+                    unite_max: null,
+                    //prestations: prestationsId
                 });
                 console.log('Pack inséré avec succès :', response);
             }

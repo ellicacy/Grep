@@ -1,0 +1,37 @@
+FICHIERS DE NOTES
+=================
+
+TODO:
+- CHANGER PARTOUT OU ON UTILISE LES PACKS POUR METTRE DANS LE CHAMPS 'UNITE' DU TEXTE à LA PLACE D'UN CHIFFRE
+
+
+CHANGEMENT DE LOCALHOST A PRODUCTION :
+======================================
+Fichier CategoryFormNew.jsx
+------------------------
+ligne 80-81
+
+Fichier GestionCategories.jsx
+-----------------------------
+ligne 125-127
+
+Fichier ShowPrestation.jsx
+--------------------------
+ligne 168-169
+
+Fichier PrestationForm.jsx
+--------------------------
+ligne 161-162
+
+
+Commandes importantes : 
+=======================
+// Pour relancer une migration
+php artisan migrate:refresh --path=database/migrations/2023_03_29_210809_create_categories_table.php
+
+TODO
+====
+Rajouter les disponibilités pour les prestataires ... (pour l'instant, on part de l'hypothèse qu'ils sont tous dispo n'importe quand ...)
+
+
+

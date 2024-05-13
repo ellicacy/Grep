@@ -1,0 +1,9 @@
+{
+    "password":"cypressuser123@",
+    "password_confirmation":"cypressuser123@",
+    "personneDateNaissance":"1992-04-20",
+    "personneLogin":"cypressuser@gmail.ch",
+    "personneNom":"Cypress",
+    "personnePrenom":"User",
+    "role":"user"
+}

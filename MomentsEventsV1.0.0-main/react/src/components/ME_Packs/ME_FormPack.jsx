@@ -15,7 +15,7 @@ const ME_FormPack = ({ prestation }) => {
     const [prestations, setPrestations] = useState([]);
     const [userId, setUserId] = useState(null);
     const [prestationsId, setPrestationsId] = useState([]);
-
+    const [packs, setPacks] = useState([]);
  
     const selectPrestation = async () => {
         try {
@@ -77,7 +77,8 @@ const ME_FormPack = ({ prestation }) => {
                 console.log('Pack inséré avec succès :', response);
             }
            
-            
+            onUpdate(response.data);
+
         } catch (error) {
             console.error('Erreur lors de l\'insertion du pack :', error);
         }

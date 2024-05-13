@@ -80,7 +80,7 @@ const ME_ChoicePrestationPack = () => {
             </ul>
             <button onClick={handleBack}>Retour</button>
 
-            {showForm && <ME_FormPack prestation={selectedPrestation} key={formKey}/>} 
+            {showForm && <ME_FormPack prestation={selectedPrestation} key={formKey} />} 
         </div>
         // creer un bouton retour en bas de la page pour retourner à la liste des packs
 

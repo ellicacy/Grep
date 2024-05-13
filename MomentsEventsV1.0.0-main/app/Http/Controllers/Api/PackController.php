@@ -10,6 +10,7 @@ use App\Models\Pack;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Validator;
 
 class PackController extends Controller
 {
@@ -32,6 +33,8 @@ class PackController extends Controller
      */
     public function store(Request $request)
     {
+        #MomentsEvent
+        /*
         // $donnees = $request->validated();
         // dd($donnees);
         // $pack = Pack::create($donnees);
@@ -50,6 +53,42 @@ class PackController extends Controller
             'message'=>'Pack added successfully !',
             'pack'=>$pack
         ], 201);
+        */
+        // Convertir les données depuis le JSON
+        $data = json_decode($request->getContent(), true);
+
+        $validator = Validator::make($data,[
+            'nom' => 'required',
+            'description'=> 'required|string',
+            'prestations' => 'required|array',
+            'prestations.*' => 'exists:prestations,id',
+        ]);
+
+        $validator->sometimes('prix_fixe', 'required|numeric', function ($input) {
+            return empty($input->unite) && empty($input->prix_unite) && empty($input->unite_max);
+        });
+
+        $validator->sometimes(['unite', 'prix_unite', 'unite_max'], 'required', function ($input) {
+            return empty($input->prix_fixe);
+        });
+
+        $validatedData = $validator->validate();
+
+        $pack = new Pack();
+        $pack->nom = $validatedData['nom'];
+        $pack->description = $validatedData['description'];
+        $pack->prix_fixe = $validatedData['prix_fixe'] ?? null;
+        $pack->unite = $validatedData['unite'] ?? null;
+        $pack->prix_unite = $validatedData['prix_unite'] ?? null;
+        $pack->unite_max = $validatedData['unite_max'] ?? null;
+        $pack->save();
+
+        //return response()->json(dd($validatedData['prestations']));
+
+        $pack->prestations()->attach($validatedData['prestations'][0]);
+
+
+        return response()->json($pack, 201);
     }
 
     /**
@@ -112,5 +151,5 @@ class PackController extends Controller
         $pack->save();
 
         return new PackResource($pack);
-    } 
+    }
 }

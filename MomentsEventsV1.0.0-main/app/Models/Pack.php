@@ -17,7 +17,10 @@ class Pack extends Model
         'description',
         'prix_fixe',
         'unite',
-        'prix_unite'
+        'prix_unite',
+        #MomentsEvent
+        'unite_max'
+
     ];
 
     public function prestations(): BelongsToMany

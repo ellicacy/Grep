@@ -24,6 +24,8 @@ return new class extends Migration
             $table->string('unite')->nullable();
             $table->decimal('prix_unite')->nullable();
             $table->timestamps();
+            //MomentsEvents
+            $table->decimal('unite_max')->nullable();
         });
     }
 

@@ -2,10 +2,17 @@ import React from "react";
 import { useState } from "react";
 import axiosClient from "../../axios-client";
 import ME_AffichagePack from "../ME_Packs/ME_affichagePackCarte";
+import CartePrestation from "../Prestation/Carte.Prestation";
+import { set } from "lodash";
 
 
 const ReserverForm = ({ onClose, selectedDate, selectedTitle, selectedPrestataire, disponibilites, setDisponibilites}) => {
   
+  const [option, setOption] = useState(null);
+  const [packs, setPacks] = useState([]);
+  const [prestations, setPrestations] = useState([]);
+
+
   const capitalizeFirstLetter = (str) => {
     // Vérifie si la chaîne de caractères est vide ou null
     if (!str) return '';
@@ -39,7 +46,7 @@ const ReserverForm = ({ onClose, selectedDate, selectedTitle, selectedPrestatair
     const response = await axiosClient.get('/users');
     const prestateur = response.data.data;
 
-   
+   console.log('le prestateur'+ prestateur);
 
     try {
       /// Séparer selectedPrestataire pour obtenir le prénom et le nom de famille
@@ -54,6 +61,8 @@ const ReserverForm = ({ onClose, selectedDate, selectedTitle, selectedPrestatair
       console.log(prestataireId);
       const prestationsRecherche = await axiosClient.get(`/prestations`);
       const prestations = prestationsRecherche.data;
+      setPrestations(prestations);
+      console.log(' la prestatoi de'+ prestations);
 
 
       const prestationselectionne = prestations.find(prestation => prestation.id_user === prestataireId && prestation.nom === selectedTitle);
@@ -67,6 +76,7 @@ const ReserverForm = ({ onClose, selectedDate, selectedTitle, selectedPrestatair
 };
     
 
+
     const handleReservation = (e) => {
         e.preventDefault();
         onClose();
@@ -75,9 +85,8 @@ const ReserverForm = ({ onClose, selectedDate, selectedTitle, selectedPrestatair
     
 
     const reserver = async (info) => {
-         
-         recupererPresationFiltre();  
-         
+      recupererPresationFiltre();  
+      creerNotification();
     }
     const fetchDisponibilites = async (setDisponibilites) => {
       try {
@@ -93,14 +102,57 @@ const ReserverForm = ({ onClose, selectedDate, selectedTitle, selectedPrestatair
       }
   };
 
+  const recuperPack = async () => {
+    try {
+      const response = await axiosClient.get('/packs');
+      const packs = response.data;
+      console.log(packs);
+      setPacks(packs);
+    }
+    catch (error) {
+      console.error('Erreur lors de la récupération des packs :', error);
+    }
+  };
+
+  const creerNotification = async () => {
+
+    try {
+      const response = await axiosClient.post('/notification', {
+        title: 'Nouvelle réservation',
+        content: '',
+        idPersonne: 1,
+      } );
+    }
+    catch (error) {
+      console.error('Erreur lors de la création de la notification :', error);
+    }
+  };
+
+  const handlePackChange = (event) => {
+
+    const selectedPack = event.target.value;
+    setPacks(selectedPack); 
+};
+
   return (
     <div>
+
+
       <h1>Formulaire de réservation pour un(e) {selectedTitle} de {selectedPrestataire}</h1>
 
       <form onSubmit={handleReservation}>
+
         <label>
-          < ME_AffichagePack />
+          Sélectionnez un pack:
+          <select name="Pack" onChange={handlePackChange}>
+            {packs.map((pack, index) => (
+              <option key={index} value={pack.id}>{pack.nom}</option>
+            ))}
+          </select>
+
         </label>
+        <br />
+
         <label>
           Nom:
           <input type="text" name="name" />
@@ -134,6 +186,9 @@ const ReserverForm = ({ onClose, selectedDate, selectedTitle, selectedPrestatair
         </div>
         
       </form>
+
+
+
     </div>
   );
 }

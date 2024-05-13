@@ -1,5 +1,5 @@
 import React, {useState} from "react";
-import ME_CreatePack from "../../components/ME_Packs/ME_CreatePack";
+import ME_CreatePack from "../../components/ME_Packs/ME_Packs";
 import ME_ChoicePrestationPack from "../../components/ME_Packs/ME_ChoicePrestationPack";
 function Packs() {
     const [showForm, setShowForm] = useState(false);

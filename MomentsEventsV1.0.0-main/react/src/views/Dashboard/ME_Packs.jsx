@@ -11,7 +11,7 @@ function Packs() {
     return (
         <div>
             <h1>Pack</h1>
-            {showForm ? <ME_ChoicePrestationPack /> : <ME_CreatePack />}
+            {showForm ? <ME_ChoicePrestationPack /> : <ME_CREATEPACK />}
             {!showForm && <button onClick={handleClick}>Créer nouveau pack</button>}
             {/* Ajoutez ici les composants et le code nécessaires pour la page */}
         </div>

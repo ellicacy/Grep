@@ -42,20 +42,20 @@ import axiosClient from '../../axios-client.js'
 import DisponibilitesModal from "../ME_Availability/ME_DisponibilteModal";
 import ReserverForm from "../ME_Reservation/ME_ReserverForm";
 import Footer from "../ME_Availability/ME_FooterDispo";
-import ME_AffichagePack from "../ME_Packs/ME_affichagePackCarte.jsx";
+
 
 function convertToUserTimezone(utcDate) {
     // Création d'un nouvel objet Date à partir de la date UTC
     const date = new Date(utcDate);
-  
+
     // Obtention du décalage horaire de l'utilisateur par rapport à l'heure UTC en minutes
     const userTimezoneOffset = date.getTimezoneOffset();
-  
+
     // Ajout du décalage horaire de l'utilisateur pour obtenir la date locale
     date.setMinutes(date.getMinutes() + userTimezoneOffset);
-  
-    
-  
+
+
+
     return date;
   }
 
@@ -171,9 +171,9 @@ export function TabPrestation(props) {
 
         setDescription(purifyDescr);
         console.log(props.prestation);
-        
+
         const lst = props.prestation.contrainte.split(";");
-        
+
         setLstCara(lst);
         setOneMedia(lstPhoto.length === 1);
         couleur(oneMedia);
@@ -201,28 +201,28 @@ export function TabPrestation(props) {
     const [selectedTitle, setSelectedTitle] = useState(null);
     const [selectedPrestataire, setSelectedPrestataire] = useState(null);
     const [selectedPrestationId, setSelectedPrestationId] = useState(null);
-    
+
     const capitalizeFirstLetter = (value) => {
       return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
     };
-    
+
     const openModal = () => {
       setModalIsOpen(true);
   };
-  
+
   const closeModal = () => {
       setModalIsOpen(false);
   };
   const rechercherDisponibilites = async (tous) => {
     try {
-        
+
       // Récupérer les prestations depuis l'API
         const prestationsResponse = await axiosClient.get('/prestations');
         const prestations = prestationsResponse.data;
         // filtrer les prestations pour obtenir la prestation sélectionnée
         const prestation = prestations.find(prestation => prestation.id === props.prestation.id);
         console.log('Prestation sélectionnée 2:', prestation);
-        
+
         const prestationId = prestation.id;
         setSelectedPrestationId(prestationId);
         console.log('idPrestation:', prestationId);
@@ -235,7 +235,7 @@ export function TabPrestation(props) {
         const allAvailabilities = availabilitiesResponse.data;
         const usersResponse = await axiosClient.get('/users');
         const usersData = usersResponse.data.data;
-    
+
         // Filtrer les disponibilités en fonction des critères de recherche
         const filteredAvailabilities = allAvailabilities.filter(availability => {
             const availabilityPrestationId = prestationId;
@@ -249,12 +249,12 @@ export function TabPrestation(props) {
             if (dateRecherche !== "" && tous === false) {
                 const selectedDate = new Date(dateRecherche);
                 const availabilityDate = convertToUserTimezone(availability.dateTime);
-  
+
           if (availabilityDate.setHours(0, 0, 0, 0) !== selectedDate.setHours(0, 0, 0, 0)) {
             return false;
           }
         }
-  
+
         // Vérifier si le lieu de la disponibilité correspond au lieu de recherche
         if (lieuRecherche !== "" && availability.lieu !== lieuRecherche && tous === false) {
           return false;
@@ -266,34 +266,34 @@ export function TabPrestation(props) {
           }
         }
 
-        
-  
+
+
         // Si tous les critères correspondent, conserver la disponibilité
         return true;
       });
-  
+
       console.log('Disponibilités filtrées:', filteredAvailabilities);
-  
+
       // Formater les disponibilités filtrées dans le format attendu par FullCalendar
       const formattedEvents = filteredAvailabilities.map(availability => {
-        
+
 
         const prestataire = usersData.find(user => user.idPersonne === prestataireId);
-        
+
         return {
           title: prestationTitre,
-          dateTime: availability.dateTime, 
+          dateTime: availability.dateTime,
           prestataire: capitalizeFirstLetter(prestataire.personnePrenom) + ' ' + capitalizeFirstLetter(prestataire.personneNom),
         };
       });
-      
-  
+
+
       console.log('Événements formatés:', formattedEvents);
-  
+
       // Mettre à jour l'état des disponibilités avec les données formatées
       setDisponibilites(formattedEvents);
-  
-  
+
+
       // Ouvrir le modal après avoir filtré les disponibilités
       openModal();
     } catch (error) {
@@ -301,12 +301,12 @@ export function TabPrestation(props) {
       alert('Il n\' y a pas d\'évenement disponible.');
     }
   };
-  
+
     const handleClick = () => {
         const tous = false;
         rechercherDisponibilites(tous);
     }
-  
+
     const handleClickTous = () => {
         const tous = true;
 
@@ -315,20 +315,20 @@ export function TabPrestation(props) {
     const openReserverFormModal = (date) => {
       setShowDisponibilites(false);
       setReserverFormIsOpen(true);
-  
+
   };
-  
+
   const closeReserverFormModal = () => {
       setReserverFormIsOpen(false);
       setShowDisponibilites(true);
   };
-  
+
   const onSelectedDisponibiliteChange = (date) => {
     setSelectedDate(date.dateTime);
     setSelectedTitle(date.title);
     setSelectedPrestataire(date.prestataire);
 
-  
+
   }
 
     return (
@@ -351,7 +351,7 @@ export function TabPrestation(props) {
                                 backgroundColor="#F3F4F6"
                             >
 
-                                {/* <Grid 
+                                {/* <Grid
                             item
                             > */}
                                 <img
@@ -475,7 +475,7 @@ export function TabPrestation(props) {
                             ))}
                         </Grid>
 
-                        
+
 
                         <Grid sx={{
                             borderBottom: 1,
@@ -506,7 +506,7 @@ export function TabPrestation(props) {
                         </Link>
                     </Grid>
 
-                    
+
 
                     <Grid container item direction="column" lg={4.2}>
                         <Box
@@ -565,10 +565,10 @@ export function TabPrestation(props) {
                                             Recherche
                                         </Button>
                                         <Button onClick={() => {
-                                            handleClickTous(); 
+                                            handleClickTous();
                                         }}  variant="contained" color="primary">Afficher toutes les dispos</Button>
                                     </Grid>
-                                    
+
                                     <Modal
                                         isOpen={modalIsOpen}
                                         onRequestClose={closeModal}
@@ -595,12 +595,12 @@ export function TabPrestation(props) {
                                                 outline: "none",
                                                 padding: "20px",
                                                 width: "auto",
-                                                maxHeight: "80vh" 
+                                                maxHeight: "80vh"
                                             },
-                                            
-                                            
+
+
                                         }}
-                                        
+
                                     >
                                         <div
                                         style={{
@@ -626,13 +626,13 @@ export function TabPrestation(props) {
 
                                         {showDisponibilites && (
                                         <div style={{ maxHeight: "calc(80vh - 50px)", overflowY: "auto" }}>
-                                            <DisponibilitesModal 
+                                            <DisponibilitesModal
                                                 disponibilites={disponibilites}
                                                 closeModal={closeModal}
-                                                openReserverFormModal={openReserverFormModal} 
+                                                openReserverFormModal={openReserverFormModal}
                                                 onSelectedDisponibiliteChange={onSelectedDisponibiliteChange}
                                             />
-                                            
+
                                         </div>
                                     )}
                                         <Footer onClose={closeModal} />

@@ -42,7 +42,7 @@ import axiosClient from '../../axios-client.js'
 import DisponibilitesModal from "../ME_Availability/ME_DisponibilteModal";
 import ReserverForm from "../ME_Reservation/ME_ReserverForm";
 import Footer from "../ME_Availability/ME_FooterDispo";
-import ME_AffichagePack from "../Home/ME_Packs/ME_affichagePackCarte";
+import ME_AffichagePack from "../ME_Packs/ME_affichagePackCarte.jsx";
 
 function convertToUserTimezone(utcDate) {
     // Création d'un nouvel objet Date à partir de la date UTC

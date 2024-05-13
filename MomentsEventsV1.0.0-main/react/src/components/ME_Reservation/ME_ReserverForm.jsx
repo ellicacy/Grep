@@ -1,6 +1,7 @@
 import React from "react";
 import { useState } from "react";
 import axiosClient from "../../axios-client";
+import ME_AffichagePack from "../ME_Packs/ME_affichagePackCarte";
 
 
 const ReserverForm = ({ onClose, selectedDate, selectedTitle, selectedPrestataire, disponibilites, setDisponibilites}) => {
@@ -95,7 +96,11 @@ const ReserverForm = ({ onClose, selectedDate, selectedTitle, selectedPrestatair
   return (
     <div>
       <h1>Formulaire de réservation pour un(e) {selectedTitle} de {selectedPrestataire}</h1>
+
       <form onSubmit={handleReservation}>
+        <label>
+          < ME_AffichagePack />
+        </label>
         <label>
           Nom:
           <input type="text" name="name" />

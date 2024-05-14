@@ -407,6 +407,7 @@ header .nav-btn {
     }
 }
 
+/* MomentEvents */
 .radio-container {
     display: flex;
     align-items: center;
@@ -442,6 +443,7 @@ header .nav-btn {
   .button {
     padding: 10px 20px;
     margin-right: 10px;
+    margin-top: 10px;
     border: none;
     border-radius: 5px;
     cursor: pointer;
@@ -455,3 +457,15 @@ header .nav-btn {
   .button:hover {
     background-color: #4a4a4a; /* Couleur de fond modifiée lors du survol */
   }
+
+  .text-center {
+    text-align: center;
+    
+
+  }
+
+  .wrap-text {
+    max-width: 100px;
+    word-wrap: break-word;
+    overflow-wrap: break-word; /* Pour une compatibilité maximale */
+}

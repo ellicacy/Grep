@@ -1,6 +1,7 @@
 import React, {useState} from "react";
 import ME_CreatePack from "../../components/ME_Packs/ME_Packs";
 import ME_ChoicePrestationPack from "../../components/ME_Packs/ME_ChoicePrestationPack";
+import "../../index.css";
 function Packs() {
     const [showForm, setShowForm] = useState(false);
 
@@ -12,7 +13,7 @@ function Packs() {
         <div>
             <h1>Pack</h1>
             {showForm ? <ME_ChoicePrestationPack /> : <ME_CreatePack />}
-            {!showForm && <button onClick={handleClick}>Créer nouveau pack</button>}
+            {!showForm && <button className="button" onClick={handleClick}>Créer nouveau pack</button>}
             {/* Ajoutez ici les composants et le code nécessaires pour la page */}
         </div>
     );

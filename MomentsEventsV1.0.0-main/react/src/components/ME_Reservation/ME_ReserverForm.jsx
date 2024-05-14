@@ -122,7 +122,7 @@ const ReserverForm = ({ onClose, selectedDate, selectedTitle, selectedPrestatair
   const creerNotification = async () => {
 
     try {
-      const response = await axiosClient.post('/notifications', {
+      const response = await axiosClient.post('/user/{user}/notifications', {
         title: selectedTitle,
         content: nomPersonne + " a réservé un(e) " + selectedTitle + " avec vous le " + selectedDate + " pour une durée de " 
         + time + "h. Vous pouvez le/la contacté(e) à l'adresse email suivante: " + email + " pour plus d'informations",

@@ -16,11 +16,8 @@ const ReserverForm = ({ onClose, selectedDate, selectedTitle, selectedPrestatair
   const [nomPersonne, setNomPersonne] = useState('');
   const [email, setEmail] = useState('');
   const [prestationselectionne, setPrestationSelectionne] = useState(null);
+  const [showPackOptions, setShowPackOptions] = useState(false);
 
-
-  useEffect(() => {
-    recuperPack();
-  }, []);
 
   const capitalizeFirstLetter = (str) => {
     // Vérifie si la chaîne de caractères est vide ou null
@@ -76,6 +73,7 @@ const ReserverForm = ({ onClose, selectedDate, selectedTitle, selectedPrestatair
       const prestationselectionne = prestations.find(prestation => prestation.id_user === prestataireId && prestation.nom === selectedTitle);
       const selectedPrestationId = prestationselectionne.id;
       setPrestataireID(selectedPrestationId);
+
       deleteEvent(selectedPrestationId);
       
       
@@ -112,11 +110,11 @@ const ReserverForm = ({ onClose, selectedDate, selectedTitle, selectedPrestatair
       }
   };
 
-  const recuperPack = async () => {
-    const response = await axiosClient.get('/users');
-    const prestateur = response.data.data;
-
+  const recuperPrestataireId = async () => {
     try {
+      const response = await axiosClient.get('/users');
+      const prestateur = response.data.data;
+  
       /// Séparer selectedPrestataire pour obtenir le prénom et le nom de famille
       const prenom = selectedPrestataire.split(' ')[0];
       const nomFamille = selectedPrestataire.split(' ')[1];
@@ -124,21 +122,28 @@ const ReserverForm = ({ onClose, selectedDate, selectedTitle, selectedPrestatair
         const prenomCapitalized = capitalizeFirstLetter(user.personnePrenom);
         const nomFamilleCapitalized = capitalizeFirstLetter(user.personneNom);
         return prenomCapitalized === prenom && nomFamilleCapitalized === nomFamille;
-    });
-      const prestataireId = selectedPre.idPersonne;
-      setPrestataireID(prestataireId);
-  } catch (error) {
-    console.error('Erreur lors de la récupération des prestations :', error);
-  }
+      });
+  
+      const presta = selectedPre.idPersonne;
+      console.log("ici ca mrche ?"+ presta);
+      setPrestataireID(presta);
+
+    } catch (error) {
+      console.error('Erreur lors de la récupération des prestations :', error);
+    }
+
+    
+  };
+
+  const recuperPrestation = async () => {
 
     try{
       const prestationsRecherche = await axiosClient.get(`/prestations`);
       const prestations = prestationsRecherche.data;
 
       setPrestations(prestations);
-
       console.log(prestations);
-      console.log(prestataireID);
+      console.log("presid "+ prestataireID);
       console.log(selectedTitle);
       const prestationselectionne = prestations.find(prestation => prestation.id_user === prestataireID && prestation.nom === selectedTitle);
 
@@ -147,13 +152,22 @@ const ReserverForm = ({ onClose, selectedDate, selectedTitle, selectedPrestatair
     } catch (error) {
       console.error('Erreur lors de la récupération des prestations :', error);
     }
+  };
 
+  recuperPrestataireId();
+
+  
+  const recuperPack = async () => {
+
+    recuperPrestation();
+    console.log(prestationselectionne);
     try {
       const response = await axiosClient.get('/packs');
       const packs = response.data;
       // recuperer les packs de la prestation
       console.log(prestationselectionne.id)
       const packsFiltres = packs.filter(pack => pack.prestations.map(prestation => prestation.id).includes(prestationselectionne.id));
+
 
       console.log(packs);
       console.log(packsFiltres);
@@ -194,15 +208,29 @@ const ReserverForm = ({ onClose, selectedDate, selectedTitle, selectedPrestatair
 
       <form onSubmit={handleReservation}>
 
-        <label>
-          Sélectionnez un pack:
-          <select name="Pack" onChange={handlePackChange}>
-            {packs.map((pack, index) => (
-              <option key={index} value={pack.id}>{pack.nom}</option>
-            ))}
-          </select>
-
-        </label>
+      <label>
+        Sélectionnez un pack:
+        <button onClick={() => {
+          setShowPackOptions(!showPackOptions);
+          recuperPack();
+        }
+        }>Sélectionnez un pack</button>
+        {showPackOptions && (
+          <div>
+          {packs.map((pack, index) => (
+            <label key={index}>
+              <input 
+                type="radio" 
+                name="pack" 
+                value={pack.id} 
+                onChange={() => handlePackChange(pack.id)}
+              />
+              {pack.nom}
+            </label>
+          ))}
+        </div>
+        )}
+      </label>
         <br />
 
         <label>

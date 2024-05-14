@@ -1,5 +1,6 @@
 import React, {useState, useEffect} from "react";
 import axiosClient from "../../axios-client";
+
 import "../../index.css";
 const ME_CreatePack = () => {
     
@@ -76,7 +77,9 @@ const ME_CreatePack = () => {
                         <tr className="wrap-text" key={index}>
                             <td className="text-center">{pack.prestations.map(prestation => prestation.nom).join(", ")}</td>
                             <td className="text-center">{pack.nom}</td>
-                            <td className="text-center">{pack.description}</td>
+                            <td className="text-center" style={{ maxWidth: '200px', wordWrap: 'break-word', overflowWrap: 'break-word', whiteSpace: 'normal' }}>
+                                {pack.description}
+                            </td>
                             <td className="text-center">{pack.prix_fixe ? pack.prix_fixe + " CHF" : "-"}</td>
                             <td className="text-center">{pack.prix_unite ? pack.prix_unite + " CHF" : "-"}</td>
                             <td className="text-center">{pack.unite || "-"}</td>

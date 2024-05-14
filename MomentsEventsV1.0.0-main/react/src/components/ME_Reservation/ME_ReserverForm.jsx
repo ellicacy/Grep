@@ -1,5 +1,5 @@
 import React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axiosClient from "../../axios-client";
 import ME_AffichagePack from "../ME_Packs/ME_affichagePackCarte";
 import CartePrestation from "../Prestation/Carte.Prestation";
@@ -15,7 +15,12 @@ const ReserverForm = ({ onClose, selectedDate, selectedTitle, selectedPrestatair
   const [time, setTime] = useState(1);
   const [nomPersonne, setNomPersonne] = useState('');
   const [email, setEmail] = useState('');
+  const [prestationselectionne, setPrestationSelectionne] = useState(null);
 
+
+  useEffect(() => {
+    recuperPack();
+  }, []);
 
   const capitalizeFirstLetter = (str) => {
     // Vérifie si la chaîne de caractères est vide ou null
@@ -50,8 +55,6 @@ const ReserverForm = ({ onClose, selectedDate, selectedTitle, selectedPrestatair
     const response = await axiosClient.get('/users');
     const prestateur = response.data.data;
 
-   console.log('le prestateur'+ prestateur);
-
     try {
       /// Séparer selectedPrestataire pour obtenir le prénom et le nom de famille
       const prenom = selectedPrestataire.split(' ')[0];
@@ -62,18 +65,20 @@ const ReserverForm = ({ onClose, selectedDate, selectedTitle, selectedPrestatair
         return prenomCapitalized === prenom && nomFamilleCapitalized === nomFamille;
     });
       const prestataireId = selectedPre.idPersonne;
+
       console.log(prestataireId);
       const prestationsRecherche = await axiosClient.get(`/prestations`);
       const prestations = prestationsRecherche.data;
       setPrestations(prestations);
-      console.log(' la prestatoi de'+ prestations);
+      console.log(prestations);
 
 
       const prestationselectionne = prestations.find(prestation => prestation.id_user === prestataireId && prestation.nom === selectedTitle);
-      console.log(prestationselectionne);
       const selectedPrestationId = prestationselectionne.id;
       setPrestataireID(selectedPrestationId);
       deleteEvent(selectedPrestationId);
+      
+      
     }
     catch (error) {
       console.error('Erreur lors de la récupération des prestations :', error);
@@ -108,11 +113,51 @@ const ReserverForm = ({ onClose, selectedDate, selectedTitle, selectedPrestatair
   };
 
   const recuperPack = async () => {
+    const response = await axiosClient.get('/users');
+    const prestateur = response.data.data;
+
+    try {
+      /// Séparer selectedPrestataire pour obtenir le prénom et le nom de famille
+      const prenom = selectedPrestataire.split(' ')[0];
+      const nomFamille = selectedPrestataire.split(' ')[1];
+      const selectedPre = prestateur.find(user => {
+        const prenomCapitalized = capitalizeFirstLetter(user.personnePrenom);
+        const nomFamilleCapitalized = capitalizeFirstLetter(user.personneNom);
+        return prenomCapitalized === prenom && nomFamilleCapitalized === nomFamille;
+    });
+      const prestataireId = selectedPre.idPersonne;
+      setPrestataireID(prestataireId);
+  } catch (error) {
+    console.error('Erreur lors de la récupération des prestations :', error);
+  }
+
+    try{
+      const prestationsRecherche = await axiosClient.get(`/prestations`);
+      const prestations = prestationsRecherche.data;
+
+      setPrestations(prestations);
+
+      console.log(prestations);
+      console.log(prestataireID);
+      console.log(selectedTitle);
+      const prestationselectionne = prestations.find(prestation => prestation.id_user === prestataireID && prestation.nom === selectedTitle);
+
+      console.log(prestationselectionne);
+      setPrestationSelectionne(prestationselectionne);
+    } catch (error) {
+      console.error('Erreur lors de la récupération des prestations :', error);
+    }
+
     try {
       const response = await axiosClient.get('/packs');
       const packs = response.data;
+      // recuperer les packs de la prestation
+      console.log(prestationselectionne.id)
+      const packsFiltres = packs.filter(pack => pack.prestations.map(prestation => prestation.id).includes(prestationselectionne.id));
+
       console.log(packs);
-      setPacks(packs);
+      console.log(packsFiltres);
+      setPacks(packsFiltres);
     }
     catch (error) {
       console.error('Erreur lors de la récupération des packs :', error);

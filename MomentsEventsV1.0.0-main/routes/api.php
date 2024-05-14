@@ -627,6 +627,6 @@ Route::apiResource('packs', PackController::class);
 #Route::get('/packs', [PackController::class, 'index']);
 #Route::get('/packs/{pack}', [PackController::class, 'show']);
 
-Route::apiResource('notifications', NotificationController::class)->only(['store', 'destroy', 'index']);
+Route::apiResource('notifications', NotificationController::class)->only(['store', 'destroy']);
 Route::get('/user/{user}/notifications', [NotificationController::class, 'notificationsById']);
 

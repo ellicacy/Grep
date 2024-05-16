@@ -128,7 +128,6 @@ const ME_CreatePack = () => {
     try {
         // Effectuer une requête HTTP pour mettre à jour le pack dans la base de données
         await axiosClient.updatePack(`/packs/${editedPack.id}`, editedPack);
-        
         // Mettre à jour la liste currentPacks avec les données mises à jour
         const updatedPacks = [...packs];
         updatedPacks[index] = editedPack;

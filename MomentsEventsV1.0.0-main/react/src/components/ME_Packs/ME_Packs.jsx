@@ -15,6 +15,7 @@ const ME_CreatePack = () => {
     const indexOfLastPack = currentPage * packsPerPage;
     const indexOfFirstPack = indexOfLastPack - packsPerPage;
     const currentPacks = packs.slice(indexOfFirstPack, indexOfLastPack);
+    const [editIndex, setEditIndex] = useState(null);
 
     const handleClick = () => {
         setShowForm(true);
@@ -25,8 +26,6 @@ const ME_CreatePack = () => {
     }, [currentPage]);
     
     const fetchPacks = async () => {
-        
-        setLoading(true);
         try {
             const prestationResponse = await axiosClient.get('/prestations');
             const prestationsFiltre = prestationResponse.data.filter(prestation => prestation.id_user === user.idPersonne);
@@ -105,6 +104,48 @@ const ME_CreatePack = () => {
         );
     };
 
+    const handlePackChange = (e, index) => {
+        const { name, value } = e.target;
+        const updatedPacks = [...currentPacks];
+        updatedPacks[index] = {
+            ...updatedPacks[index],
+            [name]: value
+        };
+        setPacks(updatedPacks);
+    };
+
+
+    const handleClickModifier = ( index) => {
+        setEditIndex(index);
+    };
+
+    const handleSubmitEdit = async (e, index) => {
+        e.preventDefault(); // Empêche le rechargement de la page lors de la soumission du formulaire
+
+    // Récupérer le pack modifié à partir de currentPacks
+    const editedPack = currentPacks[index];
+
+    try {
+        // Effectuer une requête HTTP pour mettre à jour le pack dans la base de données
+        await axiosClient.updatePack(`/packs/${editedPack.id}`, editedPack);
+        
+        // Mettre à jour la liste currentPacks avec les données mises à jour
+        const updatedPacks = [...packs];
+        updatedPacks[index] = editedPack;
+        setPacks(updatedPacks);
+
+        // Réinitialiser l'index de l'édition
+        setEditIndex(null);
+    } catch (error) {
+        console.error('Erreur lors de la mise à jour du pack :', error);
+    }
+};
+
+    const handleCancelEdit = () => {
+        setEditIndex(null);
+    }
+
+
 
     return (
         <div>
@@ -112,7 +153,7 @@ const ME_CreatePack = () => {
         {loading && <p>Chargement en cours...</p>}
         
         {packs.length > 0 && (
-            <table >
+            <table>
                 <thead>
                     <tr className="wrap-text">
                         <th className="text-center">Prestation</th>
@@ -122,25 +163,89 @@ const ME_CreatePack = () => {
                         <th className="text-center">Prix Unitaire (CHF)</th>
                         <th className="text-center">Unité</th>
                         <th className="text-center">Unité Max</th>
+                        <th className="text-center">Actions</th> {/* Ajout de la colonne Actions */}
                     </tr>
                 </thead>
                 <tbody>
                     {currentPacks.map((pack, index) => (
                         <tr className="wrap-text" key={index}>
-                            <td className="text-center">{pack.prestations.map(prestation => prestation.nom).join(", ")}</td>
-                            <td className="text-center">{pack.nom}</td>
-                            <td className="text-center" style={{ maxWidth: '200px', wordWrap: 'break-word', overflowWrap: 'break-word', whiteSpace: 'normal' }}>
-                                {pack.description}
-                            </td>
-                            <td className="text-center">{pack.prix_fixe ? pack.prix_fixe + " CHF" : "-"}</td>
-                            <td className="text-center">{pack.prix_unite ? pack.prix_unite + " CHF" : "-"}</td>
-                            <td className="text-center">{pack.unite || "-"}</td>
-                            <td className="text-center">{pack.unite_max || "-"}</td>
-                            <button  className="buttonSupprimer" onClick={() => handleDeletePack(pack.id)}>Supprimer</button>
+                            {/* Afficher les détails du pack */}
+                            {editIndex === index ? (
+                                // Si la ligne est en mode édition, afficher les inputs
+                                <>
+                                    <td className="text-center">{pack.prestations.map(prestation => prestation.nom).join(", ")}</td>
+                                    <td className="text-center">
+                                    <form onSubmit={(e) => handleSubmitEdit(e, index)}>
+                                        {/* Input pour le nom du pack */}
+                                        <input 
+                                            type="text" 
+                                            value={pack.nom} 
+                                            onChange={(e) => handlePackChange(e, index)} 
+                                        />
+                                    </form>
+                                    </td>
+                                    <td className="text-center">
+                                        <input 
+                                            className="text-center"
+                                            type="text"
+                                            value={pack.description}
+                                            onChange={(e) => handlePackChange(e, index)}
+                                        />
+                                    </td>
+                                    <td className="text-center">
+                                        <input
+                                            type="number"
+                                            value={pack.prix_fixe}
+                                            onChange={(e) => handlePackChange(e, index)}
+                                        />
+                                    </td>
+                                    <td className="text-center">
+                                        <input
+                                            type="number"
+                                            value={pack.prix_unite}
+                                            onChange={(e) => handlePackChange(e, index)}
+                                        />
+                                    </td>
+                                    <td className="text-center">
+                                        <input
+                                            type="text"
+                                            value={pack.unite}
+                                            onChange={(e) => handlePackChange(e, index)}
+                                        />
+                                    </td>
+                                    <td className="text-center">
+                                        <input
+                                            type="text"
+                                            value={pack.unite_max}
+                                            onChange={(e) => handlePackChange(e, index)}
+                                        />
+                                    </td>
+                                    <td className="text-center">
+                                        <button type="button" onClick={(e) => handleSubmitEdit(e, index)}>Enregistrer</button>
+                                        <button type="button" onClick={handleCancelEdit}>Annuler</button>
+                                    </td>
+                                </>
+                            ) : (
+                                // Si la ligne n'est pas en mode édition, afficher les détails du pack
+                                <>
+                                    <td className="text-center">{pack.prestations.map(prestation => prestation.nom).join(", ")}</td>
+                                    <td className="text-center">{pack.nom}</td>
+                                    <td className="text-center">{pack.description}</td>
+                                    <td className="text-center">{pack.prix_fixe ? pack.prix_fixe + " CHF" : "-"}</td>
+                                    <td className="text-center">{pack.prix_unite ? pack.prix_unite + " CHF" : "-"}</td>
+                                    <td className="text-center">{pack.unite || "-"}</td>
+                                    <td className="text-center">{pack.unite_max || "-"}</td>
+                                    <td className="text-center">
+                                        <button className="button-modifier" onClick={() => handleClickModifier(index)}>Modifier un pack</button>
+                                        <button className="button-supprimer" onClick={() => handleDeletePack(pack.id)}>Supprimer un pack</button>
+                                    </td>
+                                </>
+                            )}
                         </tr>
                     ))}
                 </tbody>
             </table>
+
 
             
         )}

@@ -470,8 +470,25 @@ header .nav-btn {
     overflow-wrap: break-word; /* Pour une compatibilité maximale */
 }
 
-.buttonSupprimer {
+.button-supprimer {
     background-color: #cc050586;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 6px 12;
+    margin-left: 10px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: background-color 0.4s;
+    
+    
+}
+.button-supprimer:hover {
+    background-color: #ff0000;
+}
+
+.button-modifier {
+    background-color: #3b5ec586;
     color: white;
     border: none;
     border-radius: 5px;
@@ -482,8 +499,8 @@ header .nav-btn {
     
     
 }
-.buttonSupprimer:hover {
-    background-color: #ff0000;
+.button-modifier:hover {
+    background-color: #5100ff;
 }
 
 .quantity-controls {

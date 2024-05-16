@@ -11,6 +11,14 @@ const ME_CreatePack = () => {
     const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [packsPerPage] = useState(5);
+    const [formData, setFormData] = useState({
+        nom: "",
+        description: "",
+        prix_fixe: null,
+        prix_unite: null,
+        unite: "",
+        unite_max: null,
+    });
 
     const indexOfLastPack = currentPage * packsPerPage;
     const indexOfFirstPack = indexOfLastPack - packsPerPage;
@@ -104,45 +112,103 @@ const ME_CreatePack = () => {
         );
     };
 
-    const handlePackChange = (e, index) => {
-        const { name, value } = e.target;
-        const updatedPacks = [...currentPacks];
-        updatedPacks[index] = {
-            ...updatedPacks[index],
-            [name]: value
-        };
-        setPacks(updatedPacks);
-    };
 
 
     const handleClickModifier = ( index) => {
         setEditIndex(index);
+
+        setFormData({
+            nom: currentPacks[index].nom,
+            description: currentPacks[index].description,
+            prix_fixe: currentPacks[index].prix_fixe,
+            prix_unite: currentPacks[index].prix_unite,
+            unite: currentPacks[index].unite,
+            unite_max: currentPacks[index].unite_max
+        });
+
     };
 
     const handleSubmitEdit = async (e, index) => {
         e.preventDefault(); // Empêche le rechargement de la page lors de la soumission du formulaire
 
-    // Récupérer le pack modifié à partir de currentPacks
-    const editedPack = currentPacks[index];
+        // remplacer currentPacks par les valeurs de formData
+        // Récupérer le pack modifié à partir de currentPacks
+        const editedPack = currentPacks[index];
+        
+        
+        try {
+            
+            // Effectuer une requête HTTP pour mettre à jour le pack dans la base de données pour prix fixe
+            if (editedPack.prix_fixe !== null && editedPack.prix_fixe !== "") {
+                editedPack.nom = formData.nom;
+                editedPack.description = formData.description;
+                editedPack.prix_fixe = formData.prix_fixe;
+                editedPack.prix_unite = null;
+                editedPack.unite = null;
+                editedPack.unite_max = null;
 
-    try {
-        // Effectuer une requête HTTP pour mettre à jour le pack dans la base de données
-        await axiosClient.updatePack(`/packs/${editedPack.id}`, editedPack);
-        // Mettre à jour la liste currentPacks avec les données mises à jour
-        const updatedPacks = [...packs];
-        updatedPacks[index] = editedPack;
-        setPacks(updatedPacks);
+                console.log('if prix fixe');
+                await axiosClient.put(`/packs/${editedPack.id}`, {
+                    nom: editedPack.nom,
+                    description: editedPack.description,
+                    prix_fixe: editedPack.prix_fixe,
+                    prestations: editedPack.prestations.map(prestation => prestation.id)
+                });
+                // Mettre à jour la liste currentPacks avec les données mises à jour
+                const updatedPacks = [...packs];
+                updatedPacks[index] = editedPack;
+                setPacks(updatedPacks);
+                // Réinitialiser l'index de l'édition
+                setEditIndex(null);
+                // Effectuer une requête HTTP pour mettre à jour le pack dans la base de données pour prix unitaire
+            } else {
+                console.log('if prix unitaire');
+                await axiosClient.put(`/packs/${editedPack.id}`, {
+                    nom: editedPack.nom,
+                    description: editedPack.description,
+                    unite: editedPack.unite,
+                    prix_unite: editedPack.prix_unite,
+                    unite_max: editedPack.unite_max,
+                    prestations: editedPack.prestations.map(prestation => prestation.id)
+                });
+                // Mettre à jour la liste currentPacks avec les données mises à jour
+                const updatedPacks = [...packs];
+                updatedPacks[index] = editedPack;
+                setPacks(updatedPacks);
 
-        // Réinitialiser l'index de l'édition
-        setEditIndex(null);
-    } catch (error) {
-        console.error('Erreur lors de la mise à jour du pack :', error);
-    }
-};
+                // Réinitialiser l'index de l'édition
+                setEditIndex(null);
+            }
+        } catch (error) {
+            console.error('Erreur lors de la mise à jour du pack :', error);
+        }
+    };
 
     const handleCancelEdit = () => {
+
         setEditIndex(null);
     }
+
+    const handleInputChange = (e, fieldName) => {
+        const { value } = e.target;
+        if (fieldName === "prix_fixe" || fieldName === "prix_unite" || fieldName === "unite_max") {
+            if (value === "") {
+                setFormData({
+                    ...formData,
+                    [fieldName]: null
+                });
+                return;
+            }
+        }
+        // Mettre à jour les valeurs du formulaire d'édition en fonction du champ modifié
+        setFormData({
+            ...formData,
+            [fieldName]: value
+        });
+
+        console
+    };
+
 
 
 
@@ -178,8 +244,8 @@ const ME_CreatePack = () => {
                                         {/* Input pour le nom du pack */}
                                         <input 
                                             type="text" 
-                                            value={pack.nom} 
-                                            onChange={(e) => handlePackChange(e, index)} 
+                                            value={formData.nom} 
+                                            onChange={(e) => handleInputChange(e, "nom")} 
                                         />
                                     </form>
                                     </td>
@@ -187,36 +253,36 @@ const ME_CreatePack = () => {
                                         <input 
                                             className="text-center"
                                             type="text"
-                                            value={pack.description}
-                                            onChange={(e) => handlePackChange(e, index)}
+                                            value={formData.description}
+                                            onChange={(e) => handleInputChange(e, "description")}
                                         />
                                     </td>
                                     <td className="text-center">
                                         <input
                                             type="number"
-                                            value={pack.prix_fixe}
-                                            onChange={(e) => handlePackChange(e, index)}
+                                            value={formData.prix_fixe}
+                                            onChange={(e) => handleInputChange(e, "prix_fixe")}
                                         />
                                     </td>
                                     <td className="text-center">
                                         <input
                                             type="number"
-                                            value={pack.prix_unite}
-                                            onChange={(e) => handlePackChange(e, index)}
+                                            value={formData.prix_unite}
+                                            onChange={(e) => handleInputChange(e, "prix_unite")}
                                         />
                                     </td>
                                     <td className="text-center">
                                         <input
                                             type="text"
-                                            value={pack.unite}
-                                            onChange={(e) => handlePackChange(e, index)}
+                                            value={formData.unite}
+                                            onChange={(e) => handleInputChange(e, "unite")}
                                         />
                                     </td>
                                     <td className="text-center">
                                         <input
                                             type="text"
-                                            value={pack.unite_max}
-                                            onChange={(e) => handlePackChange(e, index)}
+                                            value={formData.unite_max}
+                                            onChange={(e) => handleInputChange(e, "unite_max")}
                                         />
                                     </td>
                                     <td className="text-center">

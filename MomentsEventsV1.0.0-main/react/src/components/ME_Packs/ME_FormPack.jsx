@@ -26,7 +26,6 @@ const ME_FormPack = ({ prestation }) => {
             if (user) {
                 
                 const userIdP = user.idPersonne;
-                console.log('user id '+userIdP);
                 setUserId(userIdP);
                 userPrestations = prestationsResponse.data.filter(prestation => prestation.id_user === userIdP);
 

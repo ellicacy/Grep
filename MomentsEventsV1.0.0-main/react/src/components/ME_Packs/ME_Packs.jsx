@@ -156,10 +156,9 @@ const ME_CreatePack = () => {
                     nom: editedPack.nom,
                     description: editedPack.description,
                     prix_fixe: editedPack.prix_fixe,
-                    unite: editedPack.unite,
-                    prix_unite: editedPack.prix_unite,
-                    unite_max: editedPack.unite_max,
-
+                    //unite: editedPack.unite,
+                    //prix_unite: editedPack.prix_unite,
+                    //unite_max: editedPack.unite_max,
                     prestations: editedPack.prestations.map(prestation => prestation.id)
                 });
                 // Mettre à jour la liste currentPacks avec les données mises à jour
@@ -237,7 +236,7 @@ const ME_CreatePack = () => {
                         <th className="text-center">Prix Unitaire (CHF)</th>
                         <th className="text-center">Unité</th>
                         <th className="text-center">Unité Max</th>
-                        <th className="text-center">Actions</th> {/* Ajout de la colonne Actions */}
+                        <th className="text-center action-cell">Actions</th> {/* Ajout de la colonne Actions */}
                     </tr>
                 </thead>
                 <tbody>
@@ -247,69 +246,70 @@ const ME_CreatePack = () => {
                             {editIndex === index ? (
                                 // Si la ligne est en mode édition, afficher les inputs
                                 <>
-                                    <td className="text-center">{pack.prestations.map(prestation => prestation.nom).join(", ")}</td>
-                                    <td className="text-center">
+                                    <td className="text-center-modif">{pack.prestations.map(prestation => prestation.nom).join(", ")}</td>
+                                    <td className="text-center-modif">
                                     <form onSubmit={(e) => handleSubmitEdit(e, index)}>
                                         {/* Input pour le nom du pack */}
-                                        <input 
+                                        <textarea 
                                             type="text" 
                                             value={formData.nom} 
                                             onChange={(e) => handleInputChange(e, "nom")} 
                                         />
                                     </form>
                                     </td>
-                                    <td className="text-center">
-                                        <input 
-                                            className="text-center"
+                                    <td className="text-center-modif">
+                                        <textarea 
+                                            className="text-center-modif "
                                             type="text"
                                             value={formData.description}
                                             onChange={(e) => handleInputChange(e, "description")}
                                         />
                                     </td>
-                                    <td className="text-center">
+                                    <td className="text-center-modif">
                                         <input
                                             type="number"
                                             value={formData.prix_fixe}
                                             onChange={(e) => handleInputChange(e, "prix_fixe")}
                                         />
                                     </td>
-                                    <td className="text-center">
+                                    <td className="text-center-modif">
                                         <input
                                             type="number"
                                             value={formData.prix_unite}
                                             onChange={(e) => handleInputChange(e, "prix_unite")}
                                         />
                                     </td>
-                                    <td className="text-center">
+                                    <td className="text-center-modif">
                                         <input
                                             type="text"
                                             value={formData.unite}
                                             onChange={(e) => handleInputChange(e, "unite")}
                                         />
                                     </td>
-                                    <td className="text-center">
+                                    <td className="text-center-modif">
                                         <input
                                             type="text"
                                             value={formData.unite_max}
                                             onChange={(e) => handleInputChange(e, "unite_max")}
                                         />
                                     </td>
-                                    <td className="text-center">
-                                        <button type="button" onClick={(e) => handleSubmitEdit(e, index)}>Enregistrer</button>
-                                        <button type="button" onClick={handleCancelEdit}>Annuler</button>
+                                    <td className="text-center-modif action-cell">
+                                        <button className="button-modifier" type="button" onClick={(e) => handleSubmitEdit(e, index)}>Enregistrer</button>
+                                        <button className="button-supprimer" type="button" onClick={handleCancelEdit}>Annuler</button>
                                     </td>
                                 </>
                             ) : (
                                 // Si la ligne n'est pas en mode édition, afficher les détails du pack
                                 <>
+                                
                                     <td className="text-center">{pack.prestations.map(prestation => prestation.nom).join(", ")}</td>
                                     <td className="text-center">{pack.nom}</td>
-                                    <td className="text-center">{pack.description}</td>
+                                    <td className="text-center description-cell">{pack.description}</td>
                                     <td className="text-center">{pack.prix_fixe ? pack.prix_fixe + " CHF" : "-"}</td>
                                     <td className="text-center">{pack.prix_unite ? pack.prix_unite + " CHF" : "-"}</td>
                                     <td className="text-center">{pack.unite || "-"}</td>
                                     <td className="text-center">{pack.unite_max || "-"}</td>
-                                    <td className="text-center">
+                                    <td className="text-center action-cell">
                                         <button className="button-modifier" onClick={() => handleClickModifier(index)}>Modifier un pack</button>
                                         <button className="button-supprimer" onClick={() => handleDeletePack(pack.id)}>Supprimer un pack</button>
                                     </td>

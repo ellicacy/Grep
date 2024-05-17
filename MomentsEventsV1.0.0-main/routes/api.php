@@ -143,7 +143,8 @@ Route::prefix('admin')->middleware(['auth:sanctum', 'isAdmin'])->group(function 
     // APIRESOURCE ('/REVIEWS') -> [INDEX,STORE,SHOW,UPDATE,DESTROY]
     Route::apiResource('/reviews', ReviewController::class);
     // APIRESOURCE ('/PACKS') -> [INDEX,STORE,SHOW,UPDATE,DESTROY] (UPDATE ISSUE, USE UPDATEPACK/{IDPARAM} INSTEAD)
-    Route::apiResource('/packs', PackController::class);
+    // MOMENTS EVENTS
+    //Route::apiResource('/packs', PackController::class);
     // APIRESOURCE ('/EVENTS') -> [INDEX,STORE,SHOW,UPDATE,DESTROY]
     Route::apiResource('/events', EvenementController::class);
     // POST ('/UPDATECATEGORIE/{IDPARAM}') -> UPDATE A SPECIFIC CATEGORIE
@@ -627,6 +628,6 @@ Route::apiResource('packs', PackController::class);
 #Route::get('/packs', [PackController::class, 'index']);
 #Route::get('/packs/{pack}', [PackController::class, 'show']);
 
-Route::apiResource('notifications', NotificationController::class)->only(['store', 'destroy']);
+Route::apiResource('notifications', NotificationController::class)->only(['post','store', 'destroy']);
 Route::get('/user/{user}/notifications', [NotificationController::class, 'notificationsById']);
 

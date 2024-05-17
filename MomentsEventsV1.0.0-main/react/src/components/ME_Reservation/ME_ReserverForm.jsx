@@ -24,6 +24,21 @@ const ReserverForm = ({ onClose, selectedDate, selectedTitle, selectedPrestatair
   
 
 
+  function convertToUserTimezone(utcDate) {
+    // Création d'un nouvel objet Date à partir de la date UTC
+    const date = new Date(utcDate);
+  
+    // Obtention du décalage horaire de l'utilisateur par rapport à l'heure UTC en minutes
+    const userTimezoneOffset = date.getTimezoneOffset();
+  
+    // Ajout du décalage horaire de l'utilisateur pour obtenir la date locale
+    date.setMinutes(date.getMinutes() + userTimezoneOffset);
+  
+    
+  
+    return date;
+  }
+
   const capitalizeFirstLetter = (str) => {
     // Vérifie si la chaîne de caractères est vide ou null
     if (!str) return '';
@@ -35,24 +50,7 @@ const ReserverForm = ({ onClose, selectedDate, selectedTitle, selectedPrestatair
     return firstLetter + str.slice(1);
 };
   
-  const deleteEvent = async (selectedPrestationId) => {
-    try {
-        // get the event 
-        const response = await axiosClient.get(`/availabilities`);
-        const availabilities = response.data;
-        const availability = availabilities.find(availability => availability.idPrestation === selectedPrestationId && availability.dateTime === selectedDate);
-        
-        // delete the event
-        await axiosClient.delete(`/availabilities/${availability.id}`);
-        console.log('L\'événement a été supprimé avec succès');
-
-        fetchDisponibilites(setDisponibilites);
-
-
-    } catch (error) {
-        console.error('Erreur lors de la suppression de l\'événement :', error);
-    }
-};
+  
   const recupererPresationFiltre = async () => {
     const response = await axiosClient.get('/users');
     const prestateur = response.data.data;
@@ -67,13 +65,10 @@ const ReserverForm = ({ onClose, selectedDate, selectedTitle, selectedPrestatair
         return prenomCapitalized === prenom && nomFamilleCapitalized === nomFamille;
     });
       const prestataireId = selectedPre.idPersonne;
-
-      console.log(prestataireId);
       const prestationsRecherche = await axiosClient.get(`/prestations`);
       const prestations = prestationsRecherche.data;
-      setPrestations(prestations);
-      console.log(prestations);
 
+      setPrestations(prestations);
 
       const prestationselectionne = prestations.find(prestation => prestation.id_user === prestataireId && prestation.nom === selectedTitle);
       const selectedPrestationId = prestationselectionne.id;
@@ -102,9 +97,9 @@ const ReserverForm = ({ onClose, selectedDate, selectedTitle, selectedPrestatair
     }
     
 
-    const reserver = async (info) => {
-      recupererPresationFiltre();  
+    const reserver = async () => {
       creerNotification();
+      recupererPresationFiltre();  
     }
     const fetchDisponibilites = async (setDisponibilites) => {
       try {
@@ -146,6 +141,12 @@ const ReserverForm = ({ onClose, selectedDate, selectedTitle, selectedPrestatair
 
   recuperPrestataireId();
 
+  const handleClickAffichage = (packId) => {
+    setPackId(packId);
+    const packselection = packs.find(pack => pack.id === packId);
+    setPackSelectionne(packselection);
+    setShowPackDetails(true);
+  }
   
   const recuperPack = async () => {
 
@@ -156,22 +157,13 @@ const ReserverForm = ({ onClose, selectedDate, selectedTitle, selectedPrestatair
 
       setPrestations(prestations);
       console.log(prestations);
-      console.log("presid "+ prestataireID);
-      console.log(selectedTitle);
       const prestationselectionne = prestations.find(prestation => prestation.id_user === prestataireID && prestation.nom === selectedTitle);
-
-      console.log(prestationselectionne);
       setPrestationSelectionne(prestationselectionne);
 
       const response = await axiosClient.get('/packs');
       const packs = response.data;
       // recuperer les packs de la prestation
-      console.log(prestationselectionne.id)
       const packsFiltres = packs.filter(pack => pack.prestations.map(prestation => prestation.id).includes(prestationselectionne.id));
-
-
-      console.log(packs);
-      console.log(packsFiltres);
       setPacks(packsFiltres);
     }
     catch (error) {
@@ -182,9 +174,23 @@ const ReserverForm = ({ onClose, selectedDate, selectedTitle, selectedPrestatair
   const creerNotification = async () => {
 
     const packselectionne = packs.find(pack => pack.id === packid);
-
-    const content = nomPersonne + " a réservé, un(e) " + selectedTitle + " avec le pack: " + packselectionne.nom +" ,avec vous le " + selectedDate + " pour une durée de "
+    let date = new Date(selectedDate);
+    date = convertToUserTimezone(date);
+    let options = { 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric', 
+      hour: '2-digit', 
+      minute: '2-digit', 
+  };
+  
+  // Formater la date
+    let formattedDate = date.toLocaleDateString('fr-FR', options);
+  
+    
+    const content = nomPersonne + " a réservé, un(e) " + selectedTitle + " avec le pack: " + packselectionne.nom +" ,avec vous le " + formattedDate + " pour une durée de "
     + time + "h. Vous pouvez le/la contacté(e) à l'adresse email suivante: " + email + " pour plus d'informations";
+    console.log(content);
     try {
       const response = await axiosClient.post(`/user/${prestataireID}/notifications`, {
         title: selectedTitle,
@@ -199,15 +205,26 @@ const ReserverForm = ({ onClose, selectedDate, selectedTitle, selectedPrestatair
   };
 
 
-  const handleClickAffichage = (packId) => {
-    setPackId(packId);
-    const packselection = packs.find(pack => pack.id === packId);
-    console.log("packselection");
-    console.log(packselection);
-    setPackSelectionne(packselection);
-    setShowPackDetails(true);
-  }
+  
 
+  const deleteEvent = async (selectedPrestationId) => {
+    try {
+        // get the event 
+        const response = await axiosClient.get(`/availabilities`);
+        const availabilities = response.data;
+        const availability = availabilities.find(availability => availability.idPrestation === selectedPrestationId && availability.dateTime === selectedDate);
+        
+        // delete the event
+        await axiosClient.delete(`/availabilities/${availability.id}`);
+        console.log('L\'événement a été supprimé avec succès');
+
+        fetchDisponibilites(setDisponibilites);
+
+
+    } catch (error) {
+        console.error('Erreur lors de la suppression de l\'événement :', error);
+    }
+};
 
 
 

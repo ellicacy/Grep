@@ -91,8 +91,12 @@ const ReserverForm = ({ onClose, selectedDate, selectedTitle, selectedPrestatair
         if (packid === null) {
           alert("Veuillez sélectionner un pack avant de soumettre le formulaire.");
           return; // Arrête la soumission du formulaire si aucun pack n'est sélectionné
-      }
+        
+      } else {
+        reserver();
         onClose();
+      }
+      
 
     }
     
@@ -371,7 +375,7 @@ const ReserverForm = ({ onClose, selectedDate, selectedTitle, selectedPrestatair
         </select>
         <div style={{ display: 'flex'}}>
         <input type="button" value="Annuler" onClick={onClose} />
-        <input type="submit" value="Réserver" onClick={reserver} /> 
+        <input type="submit" value="Réserver" /> 
         </div>
         
       </form>

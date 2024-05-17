@@ -82,6 +82,7 @@ export default function DashboardClient() {
                 const errorMessage = error.response?.data?.message || 'Une erreur inconnue s\'est produite pendant le chargement de votre avatar.';
                 console.log(errorMessage);
             });
+        
 
     }, []);
 
@@ -89,6 +90,11 @@ export default function DashboardClient() {
     if (!token) {
         return <Navigate to='/' />
     }
+
+
+
+
+    
 
     return (
         <div id='defaultLayout'>
@@ -198,7 +204,7 @@ export default function DashboardClient() {
                     <Link to='/notifications' style={linkStyle('/notifications')}>
                         <Grid container height={'100%'} alignItems='center' ml='30px'>
                             <Typography variant='body1'>Notifications</Typography>
-                            <Badge badgeContent={5} color="primary" sx={{
+                            <Badge badgeContent={4} color="primary" sx={{
                                 marginLeft: 12,
                                 '& .MuiBadge-badge': {
                                     backgroundColor: grey[300],

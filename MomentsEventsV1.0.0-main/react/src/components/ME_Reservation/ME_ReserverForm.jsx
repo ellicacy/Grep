@@ -14,6 +14,7 @@ const ReserverForm = ({ onClose, selectedDate, selectedTitle, selectedPrestatair
   const [prestataireID, setPrestataireID] = useState(null);
   const [time, setTime] = useState(1);
   const [nomPersonne, setNomPersonne] = useState('');
+  const [prenomPersonne, setPrenomPersonne] = useState('');
   const [email, setEmail] = useState('');
   const [prestationselectionne, setPrestationSelectionne] = useState(null);
   const [showPackOptions, setShowPackOptions] = useState(false);
@@ -192,11 +193,13 @@ const ReserverForm = ({ onClose, selectedDate, selectedTitle, selectedPrestatair
     let formattedDate = date.toLocaleDateString('fr-FR', options);
   
     
-    const content = nomPersonne + " a réservé, un(e) " + selectedTitle + " avec le pack: " + packselectionne.nom +" ,avec vous le " + formattedDate + " pour une durée de "
-    + time + "h. Vous pouvez le/la contacté(e) à l'adresse email suivante: " + email + " pour plus d'informations";
-    console.log(content);
+    const content = prenomPersonne + ' ' + nomPersonne + " a réservé, un(e) " + selectedTitle + " avec le pack: " + packselectionne.nom 
+    +" , avec vous le " + formattedDate + " pour une durée de "
+    + time + "h. \nVous pouvez le/la contacté(e) à l'adresse email suivante: " 
+    + email + " pour plus d'informations";
+
     try {
-      const response = await axiosClient.post(`/user/${prestataireID}/notifications`, {
+      const response = await axiosClient.post(`/notifications`, {
         title: selectedTitle,
         content: content,
         idPersonne: prestataireID
@@ -350,6 +353,12 @@ const ReserverForm = ({ onClose, selectedDate, selectedTitle, selectedPrestatair
           Nom *:
           <input required type="text" name="name" value={nomPersonne} onChange={(e) => setNomPersonne(e.target.value)} />
         </label>
+
+        <label>
+          Prénom *:
+          <input required type="text" name="prenom" value={prenomPersonne} onChange={(e) => setPrenomPersonne(e.target.value)} />
+        </label>
+
         <label>
           Email *:
           <input required type="email" name="email" value={email} onChange={(e) => setEmail(e.target.value)} />

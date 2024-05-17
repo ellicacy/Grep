@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axiosClient from "../axios-client";
+import "../index.css";
 
 function ME_notification() {
     const [notifications, setNotifications] = useState([]);
@@ -33,7 +34,7 @@ function ME_notification() {
                     {notifications.map((notification, index) => (
                         <tr key={index}>
                             <td>{notification.title}</td>
-                            <td>{notification.contenu}</td>
+                            <td className="content-place">{notification.content}</td>
                         </tr>
                     ))}
                 </tbody>

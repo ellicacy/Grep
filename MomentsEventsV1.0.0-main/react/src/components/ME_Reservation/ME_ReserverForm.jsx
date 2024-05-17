@@ -1,5 +1,5 @@
 import React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axiosClient from "../../axios-client";
 import ME_AffichagePack from "../ME_Packs/ME_affichagePackCarte";
 import CartePrestation from "../Prestation/Carte.Prestation";
@@ -15,6 +15,13 @@ const ReserverForm = ({ onClose, selectedDate, selectedTitle, selectedPrestatair
   const [time, setTime] = useState(1);
   const [nomPersonne, setNomPersonne] = useState('');
   const [email, setEmail] = useState('');
+  const [prestationselectionne, setPrestationSelectionne] = useState(null);
+  const [showPackOptions, setShowPackOptions] = useState(false);
+  const [packid, setPackId] = useState(null);
+  const [showPackDetails, setShowPackDetails] = useState(false);
+  const [quantite, setQuantite] = useState(1);
+  const [packselectionne, setPackSelectionne] = useState(null);
+  
 
 
   const capitalizeFirstLetter = (str) => {
@@ -50,8 +57,6 @@ const ReserverForm = ({ onClose, selectedDate, selectedTitle, selectedPrestatair
     const response = await axiosClient.get('/users');
     const prestateur = response.data.data;
 
-   console.log('le prestateur'+ prestateur);
-
     try {
       /// Séparer selectedPrestataire pour obtenir le prénom et le nom de famille
       const prenom = selectedPrestataire.split(' ')[0];
@@ -62,18 +67,21 @@ const ReserverForm = ({ onClose, selectedDate, selectedTitle, selectedPrestatair
         return prenomCapitalized === prenom && nomFamilleCapitalized === nomFamille;
     });
       const prestataireId = selectedPre.idPersonne;
+
       console.log(prestataireId);
       const prestationsRecherche = await axiosClient.get(`/prestations`);
       const prestations = prestationsRecherche.data;
       setPrestations(prestations);
-      console.log(' la prestatoi de'+ prestations);
+      console.log(prestations);
 
 
       const prestationselectionne = prestations.find(prestation => prestation.id_user === prestataireId && prestation.nom === selectedTitle);
-      console.log(prestationselectionne);
       const selectedPrestationId = prestationselectionne.id;
       setPrestataireID(selectedPrestationId);
+
       deleteEvent(selectedPrestationId);
+      
+      
     }
     catch (error) {
       console.error('Erreur lors de la récupération des prestations :', error);
@@ -82,8 +90,13 @@ const ReserverForm = ({ onClose, selectedDate, selectedTitle, selectedPrestatair
     
 
 
+
     const handleReservation = (e) => {
         e.preventDefault();
+        if (packid === null) {
+          alert("Veuillez sélectionner un pack avant de soumettre le formulaire.");
+          return; // Arrête la soumission du formulaire si aucun pack n'est sélectionné
+      }
         onClose();
 
     }
@@ -107,12 +120,59 @@ const ReserverForm = ({ onClose, selectedDate, selectedTitle, selectedPrestatair
       }
   };
 
-  const recuperPack = async () => {
+  const recuperPrestataireId = async () => {
     try {
+      const response = await axiosClient.get('/users');
+      const prestateur = response.data.data;
+  
+      /// Séparer selectedPrestataire pour obtenir le prénom et le nom de famille
+      const prenom = selectedPrestataire.split(' ')[0];
+      const nomFamille = selectedPrestataire.split(' ')[1];
+      const selectedPre = prestateur.find(user => {
+        const prenomCapitalized = capitalizeFirstLetter(user.personnePrenom);
+        const nomFamilleCapitalized = capitalizeFirstLetter(user.personneNom);
+        return prenomCapitalized === prenom && nomFamilleCapitalized === nomFamille;
+      });
+  
+      const presta = selectedPre.idPersonne;
+      setPrestataireID(presta);
+
+    } catch (error) {
+      console.error('Erreur lors de la récupération des prestations :', error);
+    }
+
+    
+  };
+
+  recuperPrestataireId();
+
+  
+  const recuperPack = async () => {
+
+    console.log(prestationselectionne);
+    try {
+      const prestationsRecherche = await axiosClient.get(`/prestations`);
+      const prestations = prestationsRecherche.data;
+
+      setPrestations(prestations);
+      console.log(prestations);
+      console.log("presid "+ prestataireID);
+      console.log(selectedTitle);
+      const prestationselectionne = prestations.find(prestation => prestation.id_user === prestataireID && prestation.nom === selectedTitle);
+
+      console.log(prestationselectionne);
+      setPrestationSelectionne(prestationselectionne);
+
       const response = await axiosClient.get('/packs');
       const packs = response.data;
+      // recuperer les packs de la prestation
+      console.log(prestationselectionne.id)
+      const packsFiltres = packs.filter(pack => pack.prestations.map(prestation => prestation.id).includes(prestationselectionne.id));
+
+
       console.log(packs);
-      setPacks(packs);
+      console.log(packsFiltres);
+      setPacks(packsFiltres);
     }
     catch (error) {
       console.error('Erreur lors de la récupération des packs :', error);
@@ -121,12 +181,15 @@ const ReserverForm = ({ onClose, selectedDate, selectedTitle, selectedPrestatair
 
   const creerNotification = async () => {
 
+    const packselectionne = packs.find(pack => pack.id === packid);
+
+    const content = nomPersonne + " a réservé, un(e) " + selectedTitle + " avec le pack: " + packselectionne.nom +" ,avec vous le " + selectedDate + " pour une durée de "
+    + time + "h. Vous pouvez le/la contacté(e) à l'adresse email suivante: " + email + " pour plus d'informations";
     try {
-      const response = await axiosClient.post('/notifications', {
+      const response = await axiosClient.post('/user/${prestataireID}/notifications', {
         title: selectedTitle,
-        content: nomPersonne + " a réservé un(e) " + selectedTitle + " avec vous le " + selectedDate + " pour une durée de " 
-        + time + "h. Vous pouvez le/la contacté(e) à l'adresse email suivante: " + email + " pour plus d'informations",
-        idPersonne: prestataireID,
+        content: content,
+        idPersonne: prestataireID
       } );
       console.log('Notification créée avec succès :', response);
     }
@@ -135,11 +198,19 @@ const ReserverForm = ({ onClose, selectedDate, selectedTitle, selectedPrestatair
     }
   };
 
-  const handlePackChange = (event) => {
 
-    const selectedPack = event.target.value;
-    setPacks(selectedPack); 
-};
+  const handleClickAffichage = (packId) => {
+    setPackId(packId);
+    const packselection = packs.find(pack => pack.id === packId);
+    console.log("packselection");
+    console.log(packselection);
+    setPackSelectionne(packselection);
+    setShowPackDetails(true);
+  }
+
+
+
+
 
   return (
     <div>
@@ -149,24 +220,118 @@ const ReserverForm = ({ onClose, selectedDate, selectedTitle, selectedPrestatair
 
       <form onSubmit={handleReservation}>
 
-        <label>
-          Sélectionnez un pack:
-          <select name="Pack" onChange={handlePackChange}>
-            {packs.map((pack, index) => (
-              <option key={index} value={pack.id}>{pack.nom}</option>
-            ))}
-          </select>
+      <label>
+        <button required className="buttonSelection" onClick={(e) => {
+           e.preventDefault();
+          setShowPackOptions(!showPackOptions);
+          recuperPack();
+        }
+        
+        }>Sélectionnez un pack</button>
+        {showPackOptions && (
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+          {packs.map((pack, index) => (
+             <label key={index} style={{ marginLeft: '5px' }}>
+              <input 
+                type="radio" 
+                name="pack" 
+                value={pack.id} 
+                style={{ display: 'inline-block', marginRight: '10px' }}
+                onChange={() => {
+                  handleClickAffichage(pack.id);
+                }}
+                title="Plus d'infos"
+              />
+              {pack.nom}
+            </label >
+          ))}
+        </div>
+        )}
+      </label>
+        
+      {showPackDetails && (
+        <div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nom</th>
+                        <th>Description</th>
+                        <th>Prix fixe (CHF)</th>
+                        <th>Prix unitaire (CHF)</th>
+                        <th>Unité</th>
+                        <th>Unité max</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {packs.map((pack, index) => (
+                        <tr key={index}>
+                            <td>{pack.nom}</td>
+                            <td>{pack.description}</td>
+                            <td>{pack.prix_fixe ? pack.prix_fixe + " CHF" : "-"}</td>
+                            <td>{pack.prix_unite ? pack.prix_unite + " CHF" : "-"}</td>
+                            <td>{pack.unite || "-"}</td>
+                            <td>{pack.unite_max || "-"}</td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+            <br />
+            {packselectionne.prix_fixe ? (
+                <div>
+                    Prix Total: { (packselectionne.prix_fixe).toLocaleString('fr-CH', { style: 'currency', currency: 'CHF' }) }
+                </div>
+            ) : (
+                <div>
+                  <br />
+                  <label>
+                      {packselectionne.unite} maximum:
+                      <div className="quantity-controls">
+                        <button  onClick={(e) => {
+                          e.preventDefault();
+                          setQuantite((prevQuantite) => {
+                            if (prevQuantite == null || prevQuantite <= 1) {
+                                return 1; // Si la quantité est null ou égale à 1, retourne 1
+                            } else {
+                                return prevQuantite - 1; // Sinon, décrémente la quantité de 1
+                            }
+                        })
+                          }}>
+                            -</button>
+                        <span className="quantity-display">{quantite}</span>
+                        <button onClick={(e) => { 
+                          e.preventDefault();
+                          setQuantite((prevQuantite) => {
+                            if (prevQuantite == null || prevQuantite <= 0) {
+                                return 1; // Si la quantité est null ou inférieure à 0, retourne 1
+                            } else if (prevQuantite >= packselectionne.unite_max) {
+                                return packselectionne.unite_max; // Si la quantité atteint la quantité maximale, retourne la quantité maximale
+                            } else {
+                                return prevQuantite + 1; // Sinon, incrémente la quantité de 1
+                            }
+                        })
+                          }}>
+                            +</button>
+                      
+                    </div>
+                  </label>
+                    <div>
+                        Prix Total: { (packselectionne.prix_unite * quantite).toLocaleString('fr-CH', { style: 'currency', currency: 'CHF' }) }
+                    </div>
+                </div>
+            )}
+        </div>
+    )}
 
-        </label>
         <br />
 
+
         <label>
-          Nom:
-          <input type="text" name="name" value={nomPersonne} onChange={(e) => setNomPersonne(e.target.value)} />
+          Nom *:
+          <input required type="text" name="name" value={nomPersonne} onChange={(e) => setNomPersonne(e.target.value)} />
         </label>
         <label>
-          Email:
-          <input type="email" name="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+          Email *:
+          <input required type="email" name="email" value={email} onChange={(e) => setEmail(e.target.value)} />
         </label>
         <label>
         Date et heure:

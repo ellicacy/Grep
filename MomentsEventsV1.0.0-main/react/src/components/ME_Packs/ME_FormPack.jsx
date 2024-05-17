@@ -7,6 +7,7 @@ const ME_FormPack = ({ prestation }) => {
         name: "",
         description: "",
         priceType: "", 
+        unite: "",
         priceValue: 0,
         maxQuantity: 0,
         prestations: []
@@ -25,7 +26,6 @@ const ME_FormPack = ({ prestation }) => {
             if (user) {
                 
                 const userIdP = user.idPersonne;
-                console.log('user id '+userIdP);
                 setUserId(userIdP);
                 userPrestations = prestationsResponse.data.filter(prestation => prestation.id_user === userIdP);
 
@@ -37,14 +37,16 @@ const ME_FormPack = ({ prestation }) => {
     }
 
     const handlePrestationSelect = (event) => {
-        const prestId = event.target.value;
         // Vérifiez si la prestation est déjà sélectionnée ou désélectionnée
-        if (prestationsId.includes(prestId)) {
+        const prestId = event.target.value;
+    
+        // Vérifiez si la prestation est déjà sélectionnée ou désélectionnée
+        if (prestationsId.some(item => item.id === prestId)) {
             // Si la prestation est déjà sélectionnée, retirez-la du tableau
-            setPrestationsId(prestationsId.filter(id => id !== prestId));
+            setPrestationsId(prestationsId.filter(item => item.id !== prestId));
         } else {
             // Si la prestation n'est pas encore sélectionnée, ajoutez-la au tableau
-            setPrestationsId([...prestationsId, prestId]);
+            setPrestationsId([...prestationsId, { id: prestId }]);
         }
     };
 
@@ -61,11 +63,10 @@ const ME_FormPack = ({ prestation }) => {
                 const response = await axiosClient.post('/packs', {
                     nom: formData.name,
                     description: formData.description,
-                    prix_fixe: null,
-                    unite: null,
                     prix_unite: formData.priceValue,
+                    unite: formData.unite,
                     unite_max: formData.maxQuantity,
-                    //prestations: prestationsId
+                    prestations: prestationsId
                 });
                 console.log('Pack inséré avec succès :', response);
             }
@@ -74,15 +75,11 @@ const ME_FormPack = ({ prestation }) => {
                     nom: formData.name,
                     description: formData.description,
                     prix_fixe: formData.priceValue,
-                    unite: null,
-                    prix_unite: null,
-                    unite_max: null,
-                    //prestations: prestationsId
+                    prestations: prestationsId
                 });
                 console.log('Pack inséré avec succès :', response);
             }
            
-            onUpdate(response.data);
 
         } catch (error) {
             console.error('Erreur lors de l\'insertion du pack :', error);
@@ -184,10 +181,17 @@ const ME_FormPack = ({ prestation }) => {
                     
                 </div>
                 {formData.priceType === "unitaire" && (
+                    <div>
+                    <label> 
+                        Unité:
+                        <input type="text" required name="unite" value={formData.unite} onChange={handleChange} placeholder="Horaire Max,  Personne Max..." />
+                    </label>
+
                     <label>
-                        Nombre maximum de personnes:
+                        Nombre maximum de {formData.unite}:
                         <input type="number" required name="maxQuantity" value={formData.maxQuantity} onChange={handleChange} />
                     </label>
+                    </div>
                 )}
                 <label>
                     Montant:

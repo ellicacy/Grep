@@ -23,13 +23,15 @@ export default function Pack(props) {
     const [description, setDescription] = React.useState("");
 
     const [unite, setUnite] = React.useState(1);
+    const [maxUnite, setMaxUnite] = React.useState(pack.unite_max || 10);
+    const [uniteQuantite, setUniteQuantite] = React.useState(1);
 
     //Si le pack séléctionné importé depuis le store est le même que le pack en cours de traitement, alors on renvoie true
     const isSelected = () => {
         // console.log('packSelected =')
         // console.log(packSelected);
         // console.log('pack =')
-        // console.log(pack);
+        //console.log(pack);
 
         if (packSelected.id == pack.id) {
             return true;
@@ -50,7 +52,7 @@ export default function Pack(props) {
 
     useEffect(() => {
         setPack(props.pack);
-        if (props.pack.unite == "vide") {
+        if (props.pack.unite == null) {
             setIsForfait(true);
         } else {
             setIsForfait(false);
@@ -91,7 +93,7 @@ export default function Pack(props) {
                                     onChange={() => {
                                         const payload = {
                                             pack: pack,
-                                            quantite: unite,
+                                            quantite: uniteQuantite,
                                         };
                                         dispatch(ajouterPack(payload));
                                     }}
@@ -131,7 +133,7 @@ export default function Pack(props) {
                             <Grid container alignItems={"center"} mt="10px">
                                 <Grid sx={{ maxWidth: "40px" }}>
                                     <button
-                                        disabled={isSelected() || unite === 0 ? false : true}
+
                                         style={{
                                             height: "40px",
                                             width: "40px",
@@ -142,12 +144,16 @@ export default function Pack(props) {
                                         }}
                                         onClick={(event) => {
                                             event.preventDefault();
-                                            if (unite > 0) {
-                                                setUnite(unite - 1);
+                                            let newUniteQuantite = uniteQuantite;
+                                            if (uniteQuantite === 1) {
+                                                newUniteQuantite = maxUnite;
+                                            } else if (uniteQuantite > 0) {
+                                                newUniteQuantite--;
                                             }
+                                            setUniteQuantite(newUniteQuantite);
                                             const payload = {
                                                 pack: pack,
-                                                quantite: unite - 1,
+                                                quantite: uniteQuantite - 1,
                                             };
                                             dispatch(ajouterPack(payload));
                                         }}
@@ -174,12 +180,12 @@ export default function Pack(props) {
                                         ml="-1px"
                                         color={color()}
                                     >
-                                        {unite}
+                                        {uniteQuantite}
                                     </Typography>
                                 </Grid>
                                 <Grid sx={{ maxWidth: "40px" }}>
                                     <button
-                                        disabled={isSelected() ? false : true}
+
                                         style={{
                                             height: "40px",
                                             width: "40px",
@@ -190,16 +196,21 @@ export default function Pack(props) {
                                             color: color(),
                                         }}
                                         onClick={(event) => {
-                                            event.preventDefault()
-                                            setUnite(unite + 1)
+                                            event.preventDefault();
+                                            let newUniteQuantite = uniteQuantite;
+
+                                            if (uniteQuantite === maxUnite) {
+                                                newUniteQuantite = 1;
+                                            } else if (uniteQuantite < maxUnite) {
+                                                newUniteQuantite++;
+                                            }
+                                            setUniteQuantite(newUniteQuantite);
                                             const payload = {
                                                 pack: pack,
-                                                quantite: unite + 1,
+                                                quantite: uniteQuantite + 1,
                                             };
                                             dispatch(ajouterPack(payload));
-                                        }
-
-                                        }
+                                        }}
                                     >
                                         <Typography
 
@@ -226,7 +237,7 @@ export default function Pack(props) {
                                 <Typography
                                     variant="h1"
                                     color={color()}>
-                                    CHF {pack.prix_unite * unite}.-
+                                    CHF {pack.prix_unite * uniteQuantite}.-
                                 </Typography>
                             </Grid>
                         </>

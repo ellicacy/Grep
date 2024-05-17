@@ -38,7 +38,6 @@ export default function BarreRecherche() {
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedTitle, setSelectedTitle] = useState(null);
   const [selectedPrestataire, setSelectedPrestataire] = useState(null);
-  
  
   const capitalizeFirstLetter = (value) => {
     return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();

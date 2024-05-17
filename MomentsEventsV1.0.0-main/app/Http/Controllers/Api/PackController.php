@@ -71,6 +71,7 @@ class PackController extends Controller
         $validator->sometimes(['unite', 'prix_unite', 'unite_max'], 'required', function ($input) {
             return empty($input->prix_fixe);
         });
+        
 
         $validatedData = $validator->validate();
 
@@ -148,6 +149,7 @@ class PackController extends Controller
         $pack->prix_fixe = $request->prix_fixe;
         $pack->unite = $request->unite;
         $pack->prix_unite = $request->prix_unite;
+        $pack->unite_max = $request->unite_max;
         $pack->save();
 
         return new PackResource($pack);

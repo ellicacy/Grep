@@ -207,7 +207,7 @@ table > thead > tr > th {
 table > tbody > tr > td {
     padding: 0.5rem 0.5rem;
     border-bottom: 1px solid #efefef;
-    white-space: nowrap;
+
 }
 
 .card {
@@ -407,6 +407,7 @@ header .nav-btn {
     }
 }
 
+/* MomentEvents */
 .radio-container {
     display: flex;
     align-items: center;
@@ -442,6 +443,7 @@ header .nav-btn {
   .button {
     padding: 10px 20px;
     margin-right: 10px;
+    margin-top: 10px;
     border: none;
     border-radius: 5px;
     cursor: pointer;
@@ -455,3 +457,123 @@ header .nav-btn {
   .button:hover {
     background-color: #4a4a4a; /* Couleur de fond modifiée lors du survol */
   }
+
+  .text-center {
+    text-align: center;
+  }
+
+  .wrap-text {
+    max-width: 150px;
+    word-wrap: break-word;
+    overflow-wrap: break-word; /* Pour une compatibilité maximale */
+}
+
+.button-supprimer {
+    background-color: #cc050586;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 6px 6px;
+    margin : auto;
+    cursor: pointer;
+    font-size: 12px;
+    width: 45%  ;
+    transition: background-color 0.4s;
+    
+    
+}
+.button-supprimer:hover {
+    background-color: #ff0000;
+}
+
+.button-modifier {
+    background-color: #3b5ec586;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 6px 12px;
+    cursor: pointer;
+    font-size: 12px;
+    width: 49%;
+    margin: 7px;
+    transition: background-color 0.4s;
+    
+    
+}
+.button-modifier:hover {
+    background-color: #5100ff;
+}
+
+.quantity-controls {
+    display: flex;
+    align-items: center;
+}
+
+.quantity-controls button {
+    padding: 5px 10px;
+    margin: 0 5px;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.quantity-controls button:hover {
+    background-color: #e0e0e0;
+}
+
+.quantity-controls button:focus {
+    outline: none;
+}
+
+.quantity-display {
+    font-size: 16px;
+    margin: 0 10px;
+}
+
+.buttonSelection {
+    background-color: #f0f0f0;
+    color: black;
+    border: none;
+
+    padding: 12px 15;
+    margin-top: 12px;
+    cursor: pointer;
+    font-size: 18px;
+    transition: background-color 0.4s;
+}
+
+.buttonSelection:hover {
+    background-color: #e0e0e0;
+}
+
+.pagination-button {
+    padding: 10px 20px;
+    margin-right: 10px;
+    margin-top: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 10px;
+    background-color: rgb(157, 151, 151); /* Couleur de fond des boutons */
+    color: white; /* Couleur du texte des boutons */
+    transition: background-color 0.4s; /* Transition de la couleur de fond */
+}
+
+
+.description-cell {
+    max-width: 25%;
+    word-wrap: break-word;
+    overflow-wrap: break-word; /* Pour une compatibilité maximale */
+}
+
+.action-cell {
+    width: 20%;
+}
+
+.text-center-modifier {
+    
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}

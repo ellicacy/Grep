@@ -1,0 +1,1 @@
+delete  from pack_prestation where pack_id <= 6;

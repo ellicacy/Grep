@@ -42,7 +42,7 @@ import axiosClient from '../../axios-client.js'
 import DisponibilitesModal from "../ME_Availability/ME_DisponibilteModal";
 import ReserverForm from "../ME_Reservation/ME_ReserverForm";
 import Footer from "../ME_Availability/ME_FooterDispo";
-
+import ME_AfficherPackClient from "../ME_Packs/Me_Packs_clients.jsx";
 
 function convertToUserTimezone(utcDate) {
     // Création d'un nouvel objet Date à partir de la date UTC
@@ -190,6 +190,8 @@ export function TabPrestation(props) {
 
         setLoading(false);
     }, []);
+
+    // moments events
     const [dateRecherche, setDateRecherche] = useState("");
     const [lieuRecherche, setLieuRecherche] = useState("");
     const [modalIsOpen, setModalIsOpen] = useState(false);
@@ -221,11 +223,8 @@ export function TabPrestation(props) {
         const prestations = prestationsResponse.data;
         // filtrer les prestations pour obtenir la prestation sélectionnée
         const prestation = prestations.find(prestation => prestation.id === props.prestation.id);
-        console.log('Prestation sélectionnée 2:', prestation);
-
         const prestationId = prestation.id;
         setSelectedPrestationId(prestationId);
-        console.log('idPrestation:', prestationId);
 
         const prestationTitre = props.prestation.nom;
         const prestataireId = props.prestation.id_user;
@@ -330,6 +329,7 @@ export function TabPrestation(props) {
 
 
   }
+
 
     return (
         <>
@@ -486,11 +486,7 @@ export function TabPrestation(props) {
                                 prestataire={props.prestataire}
                             />
                         </Grid>
-                        <Grid item sx={{ mt: "30px" }}>
-                            <Typography variant="h2">Pack</Typography>
-                            <ME_AffichagePack />
-
-                        </Grid>
+                        
                         <Link href="/signaler" sx={{ textDecoration: "none" }}>
                             <Grid
                                 container
@@ -503,8 +499,23 @@ export function TabPrestation(props) {
                                     Signaler un abus
                                 </Typography>
                             </Grid>
+                            
                         </Link>
+
+                        <Grid
+                            container
+                            alignItems={"right"}
+                            justifyContent={"left"}
+                            mt={"30px"}
+                            mb={"30px"}
+                        >
+                            <Typography variant="h2">
+                                <ME_AfficherPackClient  />
+                            </Typography>
+                        </Grid>
                     </Grid>
+
+                    
 
 
 

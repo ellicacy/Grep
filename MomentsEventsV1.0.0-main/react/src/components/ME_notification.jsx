@@ -3,6 +3,7 @@ import axiosClient from "../axios-client";
 
 function ME_notification() {
     const [notifications, setNotifications] = useState([]);
+    const user = JSON.parse(localStorage.getItem("USER"));
 
     useEffect(() => {
         recupererNotifications();
@@ -10,8 +11,7 @@ function ME_notification() {
 
     const recupererNotifications = async () => {
         try {
-            // Récupérer les notifications
-            const response = await axiosClient.get('/notifications');
+            const response = await axiosClient.get(`user/${user.idPersonne}/notifications`);
             const notificationsData = response.data;
             setNotifications(notificationsData);
             console.log('Notifications récupérées avec succès :', notificationsData);

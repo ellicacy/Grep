@@ -186,7 +186,7 @@ const ReserverForm = ({ onClose, selectedDate, selectedTitle, selectedPrestatair
     const content = nomPersonne + " a réservé, un(e) " + selectedTitle + " avec le pack: " + packselectionne.nom +" ,avec vous le " + selectedDate + " pour une durée de "
     + time + "h. Vous pouvez le/la contacté(e) à l'adresse email suivante: " + email + " pour plus d'informations";
     try {
-      const response = await axiosClient.post('/user/${prestataireID}/notifications', {
+      const response = await axiosClient.post(`/user/${prestataireID}/notifications`, {
         title: selectedTitle,
         content: content,
         idPersonne: prestataireID

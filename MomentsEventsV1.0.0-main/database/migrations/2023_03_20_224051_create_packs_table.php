@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('packs', function (Blueprint $table) {
             $table->id();
             $table->string('nom');
-            $table->string('description');
+            $table->text('description');
             // POUR L'INSTANT
             // $table->integer('quantite')->nullable();
             // MAIS IL FAUDRAIT CREER CET ATTRIBUT DANS UNE TABLE D'ASSOCIATION ENTRE PRESTATION ET PACK

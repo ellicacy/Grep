@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StorePackRequest;
+//use App\Http\Requests\StorePackRequest;
 use App\Http\Requests\UpdatePackRequest;
 use App\Http\Resources\PackResource;
 use App\Models\Pack;
@@ -55,11 +55,11 @@ class PackController extends Controller
         ], 201);
         */
         // Convertir les données depuis le JSON
-        $data = json_decode($request->getContent(), true);
+        /*$data = json_decode($request->getContent(), true);
 
-        $validator = Validator::make($data,[
+        $validator = Validator::make($data, [
             'nom' => 'required',
-            'description'=> 'required|string',
+            'description' => 'required|string',
             'prestations' => 'required|array',
             'prestations.*' => 'exists:prestations,id',
         ]);
@@ -71,7 +71,6 @@ class PackController extends Controller
         $validator->sometimes(['unite', 'prix_unite', 'unite_max'], 'required', function ($input) {
             return empty($input->prix_fixe);
         });
-        
 
         $validatedData = $validator->validate();
 
@@ -89,7 +88,7 @@ class PackController extends Controller
         $pack->prestations()->attach($validatedData['prestations'][0]);
 
 
-        return response()->json($pack, 201);
+        return response()->json($pack, 201);*/
     }
 
     /**
@@ -100,7 +99,7 @@ class PackController extends Controller
      */
     public function show(Pack $pack)
     {
-        try{
+        try {
             // $pack = Pack::findOrFail($pack);
             $pack = Pack::find($pack);
             // return new PackResource($pack);
@@ -109,7 +108,7 @@ class PackController extends Controller
             ], 200);
         } catch (Exception $e) {
             var_dump($e);
-            return response()->json(['error'=>'object not found ...'],Response::HTTP_NOT_FOUND);
+            return response()->json(['error' => 'object not found ...'], Response::HTTP_NOT_FOUND);
         }
     }
 
@@ -121,11 +120,43 @@ class PackController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function update(UpdatePackRequest $request, Pack $pack)
-    {
-        $donnees = $request->validated();
-        $pack->update($donnees);
-        return new PackResource($pack);
-    }
+{
+    return response()->json($request->all());
+    $data = $request->all();
+
+
+    $validator = Validator::make($data, [
+        'nom' => 'required',
+        'description' => 'required|string',
+        'prestations' => 'required|array',
+        'prestations.*' => 'exists:prestations,id',
+        'prix_fixe' => 'nullable|numeric',
+        'unite' => 'nullable|string',
+        'prix_unite' => 'nullable|numeric',
+        'unite_max' => 'nullable|numeric'
+    ]);
+
+    $validator->after(function ($validator) use ($data) {
+        if (is_null($data['prix_fixe']) && (is_null($data['unite']) || is_null($data['prix_unite']) || is_null($data['unite_max']))) {
+            $validator->errors()->add('fields', 'If prix_fixe is null, unite, prix_unite, unite_max must not be null.');
+        }
+    });
+
+    $validatedData = $validator->validate();
+
+    $pack->nom = $validatedData['nom'];
+    $pack->description = $validatedData['description'];
+    $pack->prix_fixe = $validatedData['prix_fixe'];
+    $pack->unite = $validatedData['unite'];
+    $pack->prix_unite = $validatedData['prix_unite'];
+    $pack->unite_max = $validatedData['unite_max'];
+
+    $pack->save();
+
+    $pack->prestations()->sync($validatedData['prestations']);
+
+    return new PackResource($pack);
+}
 
     /**
      * Remove the specified resource from storage.
@@ -141,7 +172,7 @@ class PackController extends Controller
             'message' => 'Pack deleted'
         ], 200);
     }
-
+    /*
     public function updatePack(Request $request, $idParam) {
         $pack = Pack::find($idParam);
         $pack->nom = $request->nom;
@@ -149,9 +180,9 @@ class PackController extends Controller
         $pack->prix_fixe = $request->prix_fixe;
         $pack->unite = $request->unite;
         $pack->prix_unite = $request->prix_unite;
-        $pack->unite_max = $request->unite_max;
         $pack->save();
 
         return new PackResource($pack);
     }
+    */
 }

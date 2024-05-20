@@ -116,9 +116,6 @@ const ME_CreatePack = () => {
 
     const handleClickModifier = ( index) => {
         setEditIndex(index);
-
-        
-
         setFormData({
             nom: currentPacks[index].nom,
             description: currentPacks[index].description,
@@ -144,13 +141,15 @@ const ME_CreatePack = () => {
         editedPack.unite = formData.unite;
         editedPack.unite_max = formData.unite_max;
 
+        console.log(editedPack.prestations);
+        let prestationsId = [];
+        // id mais avec structure -> >id: prestation.id
+        editedPack.prestations.forEach(prestation => {
+            prestationsId.push({ id: prestation.id });
+        });
+        console.log(prestationsId);
+
         try {
-
-            //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            // ne pas oublier de modifier ici car ca marche pas 
-            //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-            
             // Effectuer une requête HTTP pour mettre à jour le pack dans la base de données pour prix fixe
             if (editedPack.prix_fixe !== null ) {
                 console.log('if prix fixe');
@@ -218,9 +217,6 @@ const ME_CreatePack = () => {
 
         console
     };
-
-
-
 
     return (
         <div>

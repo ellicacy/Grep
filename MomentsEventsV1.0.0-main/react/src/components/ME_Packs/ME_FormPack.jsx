@@ -64,7 +64,6 @@ const ME_FormPack = ({ prestation }) => {
                 const response = await axiosClient.post('/packs', {
                     nom: formData.name,
                     description: formData.description,
-
                     prix_unite: formData.priceValue,
                     unite: formData.unite,
                     unite_max: formData.maxQuantity,
@@ -107,7 +106,7 @@ const ME_FormPack = ({ prestation }) => {
 
     const handleShowListChange = (value) => {
         selectPrestation();
-        setPrestationsId([prestation.id]);
+        setPrestationsId([...prestationsId, { id: prestation.id }]);
         setShowList(value === "oui");
     };
 
@@ -121,7 +120,7 @@ const ME_FormPack = ({ prestation }) => {
 
 
     useEffect(() => {
-        setPrestationsId([prestation.id]);
+        setPrestationsId([{ id: prestation.id }]);
     }, []);
 
     return (

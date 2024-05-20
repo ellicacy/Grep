@@ -21,14 +21,18 @@ class UpdatePackRequest extends FormRequest
      *
      * @return array<string, mixed>
      */
-    public function rules()
-    {
-        return [
-            'nom'=>'string|max:255',
-            'description'=>'string|max:255',
-            'prix_fixe'=>'numeric|min:0',
-            'unite'=>'string|max:255',
-            'prix_unite'=>'numeric|min:0'
-        ];
-    }
+
+     public function rules()
+     {
+         return [
+             'nom' => 'required',
+             'description' => 'required|string',
+             'prestations' => 'required|array',
+             'prestations.*' => 'exists:prestations,id',
+             'prix_fixe' => 'nullable|numeric',
+             'unite' => 'nullable|string',
+             'prix_unite' => 'nullable|numeric',
+             'unite_max' => 'nullable|numeric'
+         ];
+     }
 }

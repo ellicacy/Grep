@@ -85,7 +85,7 @@ class PackController extends Controller
 
         //return response()->json(dd($validatedData['prestations']));
 
-        $pack->prestations()->attach($validatedData['prestations'][0]);
+        $pack->prestations()->sync($validatedData['prestations']);
 
 
         return response()->json($pack, 201);
@@ -121,7 +121,6 @@ class PackController extends Controller
      */
     public function update(UpdatePackRequest $request, Pack $pack)
 {
-    return response()->json($request->all());
     $data = $request->all();
 
 
@@ -153,6 +152,7 @@ class PackController extends Controller
 
     $pack->save();
 
+    // Il faut assigner les prestations au pack
     $pack->prestations()->sync($validatedData['prestations']);
 
     return new PackResource($pack);

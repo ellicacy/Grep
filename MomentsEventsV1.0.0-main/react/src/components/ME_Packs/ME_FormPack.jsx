@@ -6,7 +6,7 @@ const ME_FormPack = ({ prestation }) => {
     const [formData, setFormData] = useState({
         name: "",
         description: "",
-        priceType: "", 
+        priceType: "fixe", 
         unite: "",
         priceValue: 0,
         maxQuantity: 0,
@@ -57,18 +57,22 @@ const ME_FormPack = ({ prestation }) => {
         console.log('Insertion du pack...');
         console.log('tableau id :', prestationsId);
         console.log('formData :', formData);
+        
         try {
             if (formData.priceType === "unitaire") {
                 
                 const response = await axiosClient.post('/packs', {
                     nom: formData.name,
                     description: formData.description,
+
                     prix_unite: formData.priceValue,
                     unite: formData.unite,
                     unite_max: formData.maxQuantity,
                     prestations: prestationsId
                 });
+                
                 console.log('Pack inséré avec succès :', response);
+                
             }
             else {
                 const response = await axiosClient.post('/packs', {
@@ -78,6 +82,7 @@ const ME_FormPack = ({ prestation }) => {
                     prestations: prestationsId
                 });
                 console.log('Pack inséré avec succès :', response);
+                console.log(prestationsId);
             }
            
 
@@ -112,6 +117,8 @@ const ME_FormPack = ({ prestation }) => {
         await insertPack();
         
     };
+
+
 
     useEffect(() => {
         setPrestationsId([prestation.id]);
@@ -177,7 +184,7 @@ const ME_FormPack = ({ prestation }) => {
                 </label>
                 <div>
                     <button type="button"   className="button" onClick={() => handlePriceTypeChange("unitaire")} style={{ backgroundColor: formData.priceType === "unitaire" ? "#4a4a4a" : "#C0C0C0" }}>Prix Unitaire</button>
-                    <button type="button" required className="button" onClick={() => handlePriceTypeChange("fixe")} style={{ backgroundColor: formData.priceType === "fixe" ? "#4a4a4a" : "#C0C0C0" }}>Prix Fixe</button>
+                    <button type="button" className="button" onClick={() => handlePriceTypeChange("fixe")} style={{ backgroundColor: formData.priceType === "fixe" ? "#4a4a4a" : "#C0C0C0" }}>Prix Fixe</button>
                     
                 </div>
                 {formData.priceType === "unitaire" && (

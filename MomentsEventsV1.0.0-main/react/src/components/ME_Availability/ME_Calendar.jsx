@@ -165,6 +165,7 @@ const Calendar = () => {
                     setEvents([...events, addedAvailability]);
                     // recuper directement les disponibilités mais trop de requetes a la fois ->
                     //fetchData();
+                    console.log("Votre disponibilité a été enregistrée avec succès.", response);
                     
                 } else if (response.status === 409) {
                     // Si le statut est 409 (conflit), afficher une alerte spécifique

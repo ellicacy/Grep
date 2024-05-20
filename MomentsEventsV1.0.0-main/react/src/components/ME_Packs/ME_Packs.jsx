@@ -141,14 +141,6 @@ const ME_CreatePack = () => {
         editedPack.unite = formData.unite;
         editedPack.unite_max = formData.unite_max;
 
-        console.log(editedPack.prestations);
-        let prestationsId = [];
-        // id mais avec structure -> >id: prestation.id
-        editedPack.prestations.forEach(prestation => {
-            prestationsId.push({ id: prestation.id });
-        });
-        console.log(prestationsId);
-
         try {
             // Effectuer une requête HTTP pour mettre à jour le pack dans la base de données pour prix fixe
             if (editedPack.prix_fixe !== null ) {
@@ -157,6 +149,9 @@ const ME_CreatePack = () => {
                     nom: editedPack.nom,
                     description: editedPack.description,
                     prix_fixe: editedPack.prix_fixe,
+                    unite: null,
+                    prix_unite: null,
+                    unite_max: null,
                     prestations: editedPack.prestations.map(prestation => prestation.id)
                 });
                 // Mettre à jour la liste currentPacks avec les données mises à jour
@@ -174,6 +169,7 @@ const ME_CreatePack = () => {
                 const response = await axiosClient.put(`/packs/${editedPack.id}`, {
                     nom: editedPack.nom,
                     description: editedPack.description,
+                    prix_fixe: null,
                     unite: editedPack.unite,
                     prix_unite: editedPack.prix_unite,
                     unite_max: editedPack.unite_max,

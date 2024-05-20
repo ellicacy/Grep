@@ -22,32 +22,19 @@ const ReserverForm = ({ onClose, selectedDate, selectedTitle, selectedPrestatair
   const [showPackDetails, setShowPackDetails] = useState(false);
   const [quantite, setQuantite] = useState(1);
   const [packselectionne, setPackSelectionne] = useState(null);
-  
+  const [isPackSelected, setIsPackSelected] = useState(false);
 
 
   function convertToUserTimezone(utcDate) {
-    // Création d'un nouvel objet Date à partir de la date UTC
     const date = new Date(utcDate);
-  
-    // Obtention du décalage horaire de l'utilisateur par rapport à l'heure UTC en minutes
     const userTimezoneOffset = date.getTimezoneOffset();
-  
-    // Ajout du décalage horaire de l'utilisateur pour obtenir la date locale
     date.setMinutes(date.getMinutes() + userTimezoneOffset);
-  
-    
-  
     return date;
   }
 
   const capitalizeFirstLetter = (str) => {
-    // Vérifie si la chaîne de caractères est vide ou null
     if (!str) return '';
-
-    // Récupère la première lettre et la convertit en majuscule
     const firstLetter = str.charAt(0).toUpperCase();
-
-    // Concatène la première lettre majuscule avec le reste de la chaîne de caractères
     return firstLetter + str.slice(1);
 };
   
@@ -83,13 +70,10 @@ const ReserverForm = ({ onClose, selectedDate, selectedTitle, selectedPrestatair
       console.error('Erreur lors de la récupération des prestations :', error);
     }
 };
-    
-
-
-
     const handleReservation = (e) => {
         e.preventDefault();
-        if (packid === null) {
+        console.log(packs.length);
+        if (packid === null && packs.length !== 0) {
           alert("Veuillez sélectionner un pack avant de soumettre le formulaire.");
           return; // Arrête la soumission du formulaire si aucun pack n'est sélectionné
         
@@ -97,11 +81,8 @@ const ReserverForm = ({ onClose, selectedDate, selectedTitle, selectedPrestatair
         reserver();
         onClose();
       }
-      
-
     }
     
-
     const reserver = async () => {
       creerNotification();
       recupererPresationFiltre();  
@@ -140,8 +121,6 @@ const ReserverForm = ({ onClose, selectedDate, selectedTitle, selectedPrestatair
     } catch (error) {
       console.error('Erreur lors de la récupération des prestations :', error);
     }
-
-    
   };
 
   recuperPrestataireId();
@@ -192,11 +171,10 @@ const ReserverForm = ({ onClose, selectedDate, selectedTitle, selectedPrestatair
   // Formater la date
     let formattedDate = date.toLocaleDateString('fr-FR', options);
   
-    
-    const content = prenomPersonne + ' ' + nomPersonne + " a réservé, un(e) " + selectedTitle + " avec le pack: " + packselectionne.nom 
-    +" , avec vous le " + formattedDate + " pour une durée de "
-    + time + "h. \nVous pouvez le/la contacté(e) à l'adresse email suivante: " 
-    + email + " pour plus d'informations";
+    const content = prenomPersonne + ' ' + nomPersonne + " a réservé un(e) " + selectedTitle + 
+    (packselectionne && packselectionne.nom ? " avec le pack: " + packselectionne.nom : "") +
+    ", avec vous le " + formattedDate + " pour une durée de " + time + "h.\n" + 
+    "Vous pouvez le/la contacter à l'adresse email suivante: " + email + " pour plus d'informations";
 
     try {
       const response = await axiosClient.post(`/notifications`, {
@@ -234,8 +212,6 @@ const ReserverForm = ({ onClose, selectedDate, selectedTitle, selectedPrestatair
 };
 
 
-
-
   return (
     <div>
 
@@ -254,22 +230,26 @@ const ReserverForm = ({ onClose, selectedDate, selectedTitle, selectedPrestatair
         }>Sélectionnez un pack</button>
         {showPackOptions && (
           <div style={{ display: 'flex', alignItems: 'center' }}>
-          {packs.map((pack, index) => (
-             <label key={index} style={{ marginLeft: '5px' }}>
-              <input 
-                type="radio" 
-                name="pack" 
-                value={pack.id} 
-                style={{ display: 'inline-block', marginRight: '10px' }}
-                onChange={() => {
-                  handleClickAffichage(pack.id);
-                }}
-                title="Plus d'infos"
-              />
-              {pack.nom}
-            </label >
-          ))}
-        </div>
+           {packs.length > 0 ? (
+              packs.map((pack, index) => (
+                  <label key={index} style={{ margin: '5px' }}>
+                      <input 
+                          type="radio" 
+                          name="pack" 
+                          value={pack.id} 
+                          style={{ display: 'inline-block', marginRight: '10px' }}
+                          onChange={() => {
+                            handleClickAffichage(pack.id);
+                        }}
+                          title="Plus d'infos"
+                      />
+                      {pack.nom}
+                  </label>
+              ))
+          ) : (
+              <p>Pas de pack disponible</p>
+          )}
+      </div>
         )}
       </label>
         
@@ -372,6 +352,20 @@ const ReserverForm = ({ onClose, selectedDate, selectedTitle, selectedPrestatair
             readOnly 
         />
         </label>
+        {packselectionne && packselectionne.unite.toLowerCase() === "heure" ? ( 
+          <div>
+          <label>
+            Durée de la prestation:
+            <input 
+                type="text" 
+                name="time" 
+                value={quantite + "h"} 
+                readOnly 
+            />
+        </label>
+        </div>
+        ) : (
+        <div>
         <label>Selectionner le temps de la prestation    </label>
         <select name="time" value={time} style={{ height: '70px' }} onChange={(e) => setTime(e.target.value)}>
             <option value='1' >1h </option>
@@ -382,6 +376,8 @@ const ReserverForm = ({ onClose, selectedDate, selectedTitle, selectedPrestatair
             <option value='6'>6h </option>
             <option value='7'>7h </option>
         </select>
+        </div>
+        )}
         <div style={{ display: 'flex'}}>
         <input type="button" value="Annuler" onClick={onClose} />
         <input type="submit" value="Réserver" /> 

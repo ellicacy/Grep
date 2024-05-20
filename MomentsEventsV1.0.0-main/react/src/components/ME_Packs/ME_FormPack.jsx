@@ -17,6 +17,8 @@ const ME_FormPack = ({ prestation }) => {
     const [userId, setUserId] = useState(null);
     const [prestationsId, setPrestationsId] = useState([]);
     const [packs, setPacks] = useState([]);
+    const [error, setError] = useState(null);
+    const [successMessage, setSuccessMessage] = useState('');
  
     const selectPrestation = async () => {
         try {
@@ -41,7 +43,7 @@ const ME_FormPack = ({ prestation }) => {
         const prestId = event.target.value;
     
         // Vérifiez si la prestation est déjà sélectionnée ou désélectionnée
-        if (prestationsId.some(item => item.id === prestId)) {
+        if (prestationsId.includes(item => item.id === prestId)) {
             // Si la prestation est déjà sélectionnée, retirez-la du tableau
             setPrestationsId(prestationsId.filter(item => item.id !== prestId));
         } else {
@@ -57,7 +59,7 @@ const ME_FormPack = ({ prestation }) => {
         console.log('Insertion du pack...');
         console.log('tableau id :', prestationsId);
         console.log('formData :', formData);
-        
+        console.log('prestation :', prestation);
         try {
             if (formData.priceType === "unitaire") {
                 
@@ -106,15 +108,41 @@ const ME_FormPack = ({ prestation }) => {
 
     const handleShowListChange = (value) => {
         selectPrestation();
-        setPrestationsId([...prestationsId, { id: prestation.id }]);
+        setPrestationsId([...prestationsId, prestation.id]);
         setShowList(value === "oui");
     };
 
     const handleSubmit = async (event) => {
         console.log('submit...');
         event.preventDefault();
+
+        if (formData.priceValue <= 0) {
+            setError('Le montant doit être supérieur à 0.');
+            return;
+        }
+
         await insertPack();
+
+        validateForm();
         
+    };
+
+    const validateForm = () => {
+        setFormData({
+            name: '',
+            description: '',
+            priceType: '',
+            unite: '',
+            maxQuantity: '',
+            priceValue: '',
+            prestations: []
+        });
+
+        setError('');
+        setSuccessMessage('Formulaire soumis avec succès !');
+        setTimeout(() => {
+            setSuccessMessage('');
+        }, 5000); 
     };
 
 
@@ -129,7 +157,7 @@ const ME_FormPack = ({ prestation }) => {
             <form onSubmit={handleSubmit}>
             <label>
                 Nom:
-                <input type="text" name="name" value={formData.name} onChange={handleChange} />
+                <input type="text" name="name" value={formData.name} required onChange={handleChange} />
                 </label>
                 <label>
                     Voulez-vous lier des prestations à ce pack ?
@@ -203,6 +231,8 @@ const ME_FormPack = ({ prestation }) => {
                     Montant:
                     <input type="number" required name="priceValue" value={formData.priceValue} onChange={handleChange} />
                 </label>
+                {error && <p style={{ color: 'red' }}>{error}</p>}
+                {successMessage && <p style={{ color: 'green' }}>{successMessage}</p>}
                 <input type="submit" value="Submit" />
             </form>
 

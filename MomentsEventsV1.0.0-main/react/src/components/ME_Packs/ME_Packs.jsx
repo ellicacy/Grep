@@ -116,7 +116,6 @@ const ME_CreatePack = () => {
 
     const handleClickModifier = ( index) => {
         setEditIndex(index);
-
         setFormData({
             nom: currentPacks[index].nom,
             description: currentPacks[index].description,
@@ -142,36 +141,37 @@ const ME_CreatePack = () => {
         editedPack.unite = formData.unite;
         editedPack.unite_max = formData.unite_max;
 
+        console.log(editedPack.prestations);
+        let prestationsId = [];
+        // id mais avec structure -> >id: prestation.id
+        editedPack.prestations.forEach(prestation => {
+            prestationsId.push({ id: prestation.id });
+        });
+        console.log(prestationsId);
+
         try {
-
-            //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            // ne pas oublier de modifier ici car ca marche pas 
-            //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-            
             // Effectuer une requête HTTP pour mettre à jour le pack dans la base de données pour prix fixe
-            if (editedPack.prix_fixe !== null && editedPack.prix_fixe !== "") {
+            if (editedPack.prix_fixe !== null ) {
                 console.log('if prix fixe');
-                await axiosClient.patch(`/packs/${editedPack.id}`, {
+                const response = await axiosClient.put(`/packs/${editedPack.id}`, {
                     nom: editedPack.nom,
                     description: editedPack.description,
                     prix_fixe: editedPack.prix_fixe,
-                    //unite: editedPack.unite,
-                    //prix_unite: editedPack.prix_unite,
-                    //unite_max: editedPack.unite_max,
                     prestations: editedPack.prestations.map(prestation => prestation.id)
                 });
                 // Mettre à jour la liste currentPacks avec les données mises à jour
                 const updatedPacks = [...packs];
                 updatedPacks[index] = editedPack;
                 setPacks(updatedPacks);
+                console.log('updatedPacks', updatedPacks);
+                console.log('Pack mis à jour avec succès :', response);
 
                 // Réinitialiser l'index de l'édition
                 setEditIndex(null);
                 // Effectuer une requête HTTP pour mettre à jour le pack dans la base de données pour prix unitaire
             } else {
                 console.log('if prix unitaire');
-                await axiosClient.patch(`/packs/${editedPack.id}`, {
+                const response = await axiosClient.put(`/packs/${editedPack.id}`, {
                     nom: editedPack.nom,
                     description: editedPack.description,
                     unite: editedPack.unite,
@@ -183,7 +183,8 @@ const ME_CreatePack = () => {
                 const updatedPacks = [...packs];
                 updatedPacks[index] = editedPack;
                 setPacks(updatedPacks);
-
+                console.log('updatedPacks', updatedPacks);
+                console.log('Pack mis à jour avec succès :', response);
                 // Réinitialiser l'index de l'édition
                 setEditIndex(null);
             }
@@ -200,7 +201,7 @@ const ME_CreatePack = () => {
     const handleInputChange = (e, fieldName) => {
         const { value } = e.target;
         if (fieldName === "prix_fixe" || fieldName === "prix_unite" || fieldName === "unite_max") {
-            if (value === "") {
+            if (value === "" || value === "0") {
                 setFormData({
                     ...formData,
                     [fieldName]: null
@@ -216,9 +217,6 @@ const ME_CreatePack = () => {
 
         console
     };
-
-
-
 
     return (
         <div>

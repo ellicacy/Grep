@@ -46,7 +46,7 @@ const ME_FormPack = ({ prestation }) => {
             setPrestationsId(prestationsId.filter(item => item.id !== prestId));
         } else {
             // Si la prestation n'est pas encore sélectionnée, ajoutez-la au tableau
-            setPrestationsId([...prestationsId, { id: prestId }]);
+            setPrestationsId([...prestationsId, prestId]);
         }
     };
 
@@ -120,7 +120,7 @@ const ME_FormPack = ({ prestation }) => {
 
 
     useEffect(() => {
-        setPrestationsId([{ id: prestation.id }]);
+        setPrestationsId([prestation.id]);
     }, []);
 
     return (

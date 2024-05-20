@@ -55,7 +55,7 @@ class PackController extends Controller
         ], 201);
         */
         // Convertir les données depuis le JSON
-        /*$data = json_decode($request->getContent(), true);
+        $data = json_decode($request->getContent(), true);
 
         $validator = Validator::make($data, [
             'nom' => 'required',
@@ -88,7 +88,7 @@ class PackController extends Controller
         $pack->prestations()->attach($validatedData['prestations'][0]);
 
 
-        return response()->json($pack, 201);*/
+        return response()->json($pack, 201);
     }
 
     /**

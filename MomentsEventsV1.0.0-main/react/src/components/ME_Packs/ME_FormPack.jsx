@@ -120,6 +120,10 @@ const ME_FormPack = ({ prestation }) => {
             setError('Le montant doit être supérieur à 0.');
             return;
         }
+        if (formData.priceType === "unitaire" && formData.maxQuantity <= 0) {
+            setError('Le nombre maximum doit être supérieur à 0.');
+            return;
+        }
 
         await insertPack();
 
@@ -225,6 +229,7 @@ const ME_FormPack = ({ prestation }) => {
                         Nombre maximum de {formData.unite}:
                         <input type="number" required name="maxQuantity" value={formData.maxQuantity} onChange={handleChange} />
                     </label>
+                    
                     </div>
                 )}
                 <label>

@@ -41,35 +41,51 @@ class AvailabilityController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
-{
-    // Convertir les données depuis le JSON
-    $data = json_decode($request->getContent(), true);
+    {
+        // Convertir les données depuis le JSON
+        $data = json_decode($request->getContent(), true);
 
-    // Validation des données du formulaire
-    $validatedData = Validator::make($data, [
-        'dateTime' => 'required|date',
-        'idPrestation' => 'required|integer',
-        // Ajoutez d'autres champs si nécessaire
-    ])->validate();
+        // Validation des données du formulaire pour chaque disponibilité
+        $validator = Validator::make($data, [
+            'availabilities' => 'required|array',
+            'availabilities.*.dateTime' => 'required|date',
+            'availabilities.*.idPrestation' => 'required|integer',
+        ]);
 
-    // Vérifier si une disponibilité similaire existe déjà
-    $existingAvailability = Availability::where('dateTime', $validatedData['dateTime'])
-        ->where('idPrestation', $validatedData['idPrestation'])
-        ->first();
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
 
-    if ($existingAvailability) {
-        // Retourner une erreur si la disponibilité existe déjà
-        return response()->json(['error' => 'Cette disponibilité existe déjà.'], 409);
+        $addedAvailabilities = [];
+        $conflicts = [];
+
+        foreach ($data['availabilities'] as $availabilityData) {
+            // Vérifier si une disponibilité similaire existe déjà
+            $existingAvailability = Availability::where('dateTime', $availabilityData['dateTime'])
+                ->where('idPrestation', $availabilityData['idPrestation'])
+                ->first();
+
+            if ($existingAvailability) {
+                $conflicts[] = $availabilityData;
+                continue;
+            }
+
+            // Création d'une nouvelle disponibilité
+            $availability = new Availability();
+            $availability->dateTime = $availabilityData['dateTime'];
+            $availability->idPrestation = $availabilityData['idPrestation'];
+            $availability->save();
+
+            $addedAvailabilities[] = $availability;
+        }
+
+        $response = [
+            'added' => $addedAvailabilities,
+            'conflicts' => $conflicts
+        ];
+
+        return response()->json($response, 201);
     }
-
-    // Création d'une nouvelle disponibilité
-    $availability = new Availability();
-    $availability->dateTime = $validatedData['dateTime'];
-    $availability->idPrestation = $validatedData['idPrestation'];
-    $availability->save();
-
-    return response()->json($availability, 201);
-}
 
 
     /**

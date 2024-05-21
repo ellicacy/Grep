@@ -151,46 +151,39 @@ const Calendar = () => {
                     });
                 });
             }
-            
-            // Enregistrer les événements dans la base de données
-            for (let i = 0; i < newEvents.length; i++) {
-                const response = await axiosClient.post('/availabilities', newEvents[i]);
-                //console.log(response.data); // Process or log the response as needed
+            console.log(newEvents);
+            try {
+                const response = await axiosClient.post('/availabilities', { availabilities: newEvents });
+        
                 if (response.status === 201) {
-                    // Si la réponse est réussie, mettre à jour les événements dans le state
-                    const addedAvailability = response.data;
-                    const eventId = addedAvailability.id;
-                    addedAvailability.id = eventId;
-                    //console.log(addedAvailability);
-                    setEvents([...events, addedAvailability]);
-                    // recuper directement les disponibilités mais trop de requetes a la fois ->
-                    //fetchData();
-                    console.log("Votre disponibilité a été enregistrée avec succès.", response);
-                    
-                } else if (response.status === 409) {
-                    // Si le statut est 409 (conflit), afficher une alerte spécifique
-                    alert('Une disponibilité similaire existe déjà.');
+                    const { added, conflicts } = response.data;
+                    setEvents([...events, ...added]);
+                    if (conflicts.length > 0) {
+                        console.warn('Certains conflits ont été détectés:', conflicts);
+                    }
+                    console.log("Vos disponibilités ont été enregistrées avec succès.", response);
                 } else {
-                    // Si la réponse échoue, afficher un message d'erreur
-                    console.error('Erreur lors de l\'enregistrement de la disponibilité:', response.statusText);
+                    console.error('Erreur lors de l\'enregistrement des disponibilités:', response.statusText);
                 }
-            }
-            closeModal();
-        } catch (error) {
-            if (error.response) {
-                
-                console.error('Error data:', error.response.data);
-                console.error('Error status:', error.response.status);
-                console.error('Error headers:', error.response.headers);
-            } else if (error.request) {
-                // La requête a été faite mais pas de réponse
-                console.error('Error request:', error.request);
-            } else {
-                // Quelque chose s'est passé dans la configuration de la requête
-                console.error('Error message:', error.message);
-            }
-            console.error('Erreur lors de l\'enregistrement de la disponibilité :', error);
+        
+                closeModal();
+            } catch (error) {
+                if (error.response) {
+                    console.error('Error data:', error.response.data);
+                    console.error('Error status:', error.response.status);
+                    console.error('Error headers:', error.response.headers);
+                } else if (error.request) {
+                    console.error('Error request:', error.request);
+                } else {
+                    console.error('Error message:', error.message);
+                }
+                console.error('Erreur lors de l\'enregistrement des disponibilités :', error);
+            } 
         }
+        catch (error) {
+            console.error('Erreur lors de la récupération des données:', error);
+        }
+    
     };
 
 

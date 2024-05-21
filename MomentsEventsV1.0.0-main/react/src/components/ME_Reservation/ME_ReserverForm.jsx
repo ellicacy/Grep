@@ -42,12 +42,12 @@ const ReserverForm = ({ onClose, selectedDate, selectedTitle, selectedPrestatair
   const recupererPresationFiltre = async () => {
     const response = await axiosClient.get('/users');
     const prestateur = response.data.data;
-
+    console.log(selectedPrestataire);
     try {
       /// Séparer selectedPrestataire pour obtenir le prénom et le nom de famille
-      const prenom = selectedPrestataire.split(' ')[0];
-      const nomFamille = selectedPrestataire.split(' ')[1];
-      const selectedPre = prestateur.find(user => {
+        const prenom = selectedPrestataire.split(' ')[0];
+        const nomFamille = selectedPrestataire.split(' ')[1];
+        const selectedPre = prestateur.find(user => {
         const prenomCapitalized = capitalizeFirstLetter(user.personnePrenom);
         const nomFamilleCapitalized = capitalizeFirstLetter(user.personneNom);
         return prenomCapitalized === prenom && nomFamilleCapitalized === nomFamille;
@@ -102,6 +102,7 @@ const ReserverForm = ({ onClose, selectedDate, selectedTitle, selectedPrestatair
   };
 
   const recuperPrestataireId = async () => {
+    console.log(selectedPrestataire);
     try {
       const response = await axiosClient.get('/users');
       const prestateur = response.data.data;

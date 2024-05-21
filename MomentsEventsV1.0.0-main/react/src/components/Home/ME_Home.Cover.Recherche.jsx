@@ -38,6 +38,7 @@ export default function BarreRecherche() {
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedTitle, setSelectedTitle] = useState(null);
   const [selectedPrestataire, setSelectedPrestataire] = useState(null);
+  const [selectedPrestation, setSelectedPrestation] = useState(null);
  
   const capitalizeFirstLetter = (value) => {
     return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
@@ -140,6 +141,7 @@ const rechercherDisponibilites = async (nextDate) => {
         title: prestation.nom,
         dateTime: availability.dateTime, 
         prestataire: capitalizeFirstLetter(prestataire.personnePrenom) + ' ' + capitalizeFirstLetter(prestataire.personneNom),
+        prestation: prestation.id,
       };
     });
     
@@ -180,7 +182,7 @@ const rechercherDisponibilites = async (nextDate) => {
     rechercherDisponibilites("");
   }
 
-  const openReserverFormModal = (date) => {
+  const openReserverFormModal = () => {
     setShowDisponibilites(false);
     setReserverFormIsOpen(true);
 
@@ -195,6 +197,8 @@ const onSelectedDisponibiliteChange = (date) => {
   setSelectedDate(date.dateTime);
   setSelectedTitle(date.title);
   setSelectedPrestataire(date.prestataire);
+  setSelectedPrestation(date.prestation);
+
 
 }
 const recherchePlusTard = () => {

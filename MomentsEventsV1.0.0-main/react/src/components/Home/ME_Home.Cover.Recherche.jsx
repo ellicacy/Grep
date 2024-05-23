@@ -397,6 +397,8 @@ useEffect(() => {
                   <th>Titre</th>
                   <th>Date</th>
                   <th>Nom</th>
+                  <th>Tri</th>
+                  <th> </th>
                 </tr>
               </thead>
             </table>

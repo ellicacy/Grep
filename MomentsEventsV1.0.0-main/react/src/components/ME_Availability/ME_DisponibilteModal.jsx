@@ -20,12 +20,15 @@ const DisponibilitesModal = ({ disponibilites, closeModal,  openReserverFormModa
 
   const [selectedDisponibilite, setSelectedDisponibilite] = useState(null);
   const [selectedDate, setSelectedDate] = useState(null);
-  const [selectedOccasionType, setSelectedOccasionType] = useState(null);
   const [option, setOption] = useState("default");
   const [packs, setPacks] = useState([]);
   const [originalPacks, setOriginalPacks] = useState([]);
   const [selectedPackType, setSelectedPackType] = useState("all"); // "all", "prix_fixe", "prix_unitaire"
   const [filteredDisponibilites, setFilteredDisponibilites] = useState(disponibilites);
+  const [isSorted, setIsSorted] = useState(false);
+  const [isUnitaire, setIsUnitaire] = useState(false);
+  const [isFixe, setIsFixe] = useState(false);
+  const [packDispo, setPackDispo] = useState(null);
 
   const formatDateString = (dateString) => {
     const date = new Date(dateString);
@@ -47,28 +50,42 @@ const DisponibilitesModal = ({ disponibilites, closeModal,  openReserverFormModa
   }
 
   const sortPacks = (option) => {
-    let sortedPacks = [...originalPacks]; // Toujours utiliser la copie originale des packs
+    setIsSorted(true);
+    let sortedPacks = [...originalPacks];
 
     if (option === "nom") {
       sortedPacks.sort((a, b) => a.nom.localeCompare(b.nom));
-    } else if (option === "prix_fixe") {
+    } else if (option === "prix_fixe_croissant") {
+      setIsFixe(true);
       sortedPacks = sortedPacks.filter(pack => pack.prix_fixe !== null);
       sortedPacks.sort((a, b) => (a.prix_fixe || 0) - (b.prix_fixe || 0));
-
-    } else if (option === "prix_unitaire") {
+    } else if (option === "prix_fixe_decroissant") {
+      setIsFixe(true);
+      sortedPacks = sortedPacks.filter(pack => pack.prix_fixe !== null);
+      sortedPacks.sort((a, b) => (b.prix_fixe || 0) - (a.prix_fixe || 0));
+    } else if (option === "prix_unitaire_croissant") {
+      setIsUnitaire(true);
       sortedPacks = sortedPacks.filter(pack => pack.prix_unite !== null);
       sortedPacks.sort((a, b) => (a.prix_unite || 0) - (b.prix_unite || 0));
+    } else if (option === "prix_unitaire_decroissant") {
+      setIsUnitaire(true);
+      sortedPacks = sortedPacks.filter(pack => pack.prix_unite !== null);
+      sortedPacks.sort((a, b) => (b.prix_unite || 0) - (a.prix_unite || 0));
     }
     console.log('Packs triés :', sortedPacks);
-    setPacks(sortedPacks); // Mettre à jour la liste des packs triés
+    setPacks(sortedPacks); 
     
     console.log('Packs :', sortedPacks);
+
+    console.log('Packs prix :', packs.map(pack => pack.prix_unite));
     
 
     const filtered = filterDisponibilitesByPack(sortedPacks, disponibilites);
 
     setFilteredDisponibilites(filtered);
     console.log('Disponibilités filtrées :', filtered);
+
+    
   };
 
 
@@ -86,9 +103,10 @@ const filterDisponibilitesByPack = (packs, disponibilites) => {
   console.log('Prestation IDs :', prestationIds);
   console.log('Disponibilités :', disponibilites);
   
-  return disponibilites.filter(disponibilite => 
-    prestationIds.includes(disponibilite.prestation)
-  );
+  return disponibilites
+    .filter(disponibilite => prestationIds.includes(disponibilite.prestation))
+    .sort((a, b) => prestationIds.indexOf(a.prestation) - prestationIds.indexOf(b.prestation))
+    ;
 };
 
 
@@ -137,12 +155,6 @@ const handlePackTypeChange = (packType) => {
         <br />
         <button className='ButtonRechercheProDispo' onClick={recherchePlusTard}>Voir les prochaines disponibilités</button>
 
-        {/*
-          <p>Afficher les dates de disponibilite suivante?</p>
-          <button>Oui</button>
-          <button onClick={closeModal}>Non</button>
-        */}
-
         <br />
         <br />
         <br />
@@ -159,8 +171,10 @@ const handlePackTypeChange = (packType) => {
         <select value={option} onChange={handleSortChange}>
           <option onClick={() => handlePackTypeChange("all")} value="default">-- Tous--</option>
           <option onClick={() => handlePackTypeChange("nom")} value="nom">Nom</option>
-          <option onClick={() => handlePackTypeChange("prix_fixe")} value="prix_fixe">Prix Fixe</option>
-          <option onClick={() => handlePackTypeChange("prix_unitaire")} value="prix_unitaire">Prix Unitaire</option>
+          <option onClick={() => handlePackTypeChange("prix_fixe_croissant")} value="prix_fixe_croissant">Prix Fixe croissant</option>
+          <option onClick={() => handlePackTypeChange("prix_fixe_decroissant")} value="prix_fixe_decroissant">Prix Fixe décroissant</option>
+          <option onClick={() => handlePackTypeChange("prix_unitaire_croissant")} value="prix_unitaire_croissant">Prix Unitaire croissant</option>
+          <option onClick={() => handlePackTypeChange("prix_unitaire_decroissant")} value="prix_unitaire_decroissant">Prix Unitaire décroissant</option>
         </select>
       </label>
       <table>
@@ -172,6 +186,35 @@ const handlePackTypeChange = (packType) => {
               <td onClick={()=> 
                 handleClickPresta(disponibilite.prestataire)
                 } >{disponibilite.prestataire}</td> 
+              <td>
+                { isSorted ? (
+                  isFixe ? (
+                  <span>
+                  {packs
+                  .filter(pack => pack.prestations.map(prestation => prestation.id).includes(disponibilite.prestation))
+                  .map((pack, index) => (
+                    <span key={index}>{pack.prix_fixe} CHF </span>
+                  ))}
+                </span>
+                  ) :  isUnitaire ? (
+                  <span>
+                  {packs
+                  .filter(pack => pack.prestations.map(prestation => prestation.id).includes(disponibilite.prestation))
+                  .map((pack, index) => (
+                    <span key={index}>{pack.prix_unite} CHF </span>
+                  ))}
+                  </span>
+                  ) : (
+                    <span>
+                    </span>
+                  )
+                ) : (
+                  <span>
+                  </span>
+                )}
+
+     
+              </td>
               <td>
               <button onClick={() => handleClickReserver(disponibilite)}>
                 Réserver

@@ -353,8 +353,8 @@ const ReserverForm = ({ onClose, selectedDate, selectedTitle, selectedPrestatair
             readOnly 
         />
         </label>
-        {packselectionne && packselectionne.unite.toLowerCase() === "heure" ? ( 
-          <div>
+        
+          <div> 
           <label>
             Durée de la prestation:
             <input 
@@ -365,7 +365,7 @@ const ReserverForm = ({ onClose, selectedDate, selectedTitle, selectedPrestatair
             />
         </label>
         </div>
-        ) : (
+        
         <div>
         <label>Selectionner le temps de la prestation    </label>
         <select name="time" value={time} style={{ height: '70px' }} onChange={(e) => setTime(e.target.value)}>
@@ -378,7 +378,7 @@ const ReserverForm = ({ onClose, selectedDate, selectedTitle, selectedPrestatair
             <option value='7'>7h </option>
         </select>
         </div>
-        )}
+        
         <div style={{ display: 'flex'}}>
         <input type="button" value="Annuler" onClick={onClose} />
         <input type="submit" value="Réserver" /> 

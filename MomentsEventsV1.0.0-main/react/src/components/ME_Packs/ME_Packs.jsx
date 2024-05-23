@@ -141,6 +141,11 @@ const ME_CreatePack = () => {
         editedPack.unite = formData.unite;
         editedPack.unite_max = formData.unite_max;
 
+        if (editedPack.prix_fixe === null && editedPack.prix_unite === null) {
+            alert('Veuillez saisir un prix pour le pack');
+            return;
+        }
+
         try {
             // Effectuer une requête HTTP pour mettre à jour le pack dans la base de données pour prix fixe
             if (editedPack.prix_fixe !== null ) {

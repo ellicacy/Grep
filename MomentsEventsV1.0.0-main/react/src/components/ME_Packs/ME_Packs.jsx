@@ -72,11 +72,17 @@ const ME_CreatePack = () => {
     };
 
     const handleDeletePack = async (packId) => {
-        try {
-            await axiosClient.delete(`/packs/${packId}`);
-            setPacks(packs.filter(pack => pack.id !== packId));
-        } catch (error) {
-            console.error('Erreur lors de la suppression du pack :', error);
+        // Affiche une boîte de dialogue
+        const isConfirmed = window.confirm("Voulez-vous vraiment supprimer ce pack ?");
+        
+        // Si l'utilisateur confirme la suppression
+        if (isConfirmed) {
+            try {
+                await axiosClient.delete(`/packs/${packId}`);
+                setPacks(packs.filter(pack => pack.id !== packId));
+            } catch (error) {
+                console.error('Erreur lors de la suppression du pack :', error);
+            }
         }
     };
     
@@ -188,6 +194,8 @@ const ME_CreatePack = () => {
                 console.log('Pack mis à jour avec succès :', response);
                 // Réinitialiser l'index de l'édition
                 setEditIndex(null);
+                // message d'info de la mise à jour
+                window.alert('Pack mis à jour avec succès');
             }
         } catch (error) {
             console.error('Erreur lors de la mise à jour du pack :', error);

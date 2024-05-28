@@ -4,4 +4,8 @@ VALUES
 (2, 'Photographe', 'Capturer les moments précieux de vos événements', 'avatars/default.jpeg', 'Doit avoir accès à toutes les zones de l''événement', 'Forfait', 200, 4, 1, 100, 08, 20),
 (2, 'Magicien', 'Groupe live pour animer vos soirées et réceptions', 'avatars/default.jpeg', 'Besoin d''une scène et d''équipement audio fourni', 'Prix par événement', 500, 5, 10, 500, 10, 24),
 (2, 'DJ', 'Groupe live pour animer vos soirées et réceptions', 'avatars/default.jpeg', 'Besoin d''une scène et d''équipement audio fourni', 'Prix par événement', 500, 5, 10, 500, 10, 24),
-(2, 'Barman', 'Meilleurs cocktails de la ville', 'avatars/default.jpeg', 'Besoin d''une scène et d''équipement audio fourni', 'Prix par événement', 500, 5, 10, 500, 10, 24)
+(2, 'Barman', 'Meilleurs cocktails de la ville', 'avatars/default.jpeg', 'Besoin d''une scène et d''équipement audio fourni', 'Prix par événement', 500, 5, 10, 500, 10, 24),
+(1, 'Serveur', 'Service de qualité pour vos événements', 'avatars/default.jpeg', 'Besoin d''une scène et d''équipement audio fourni', 'Prix par événement', 500, 5, 10, 500, 10, 24),
+(1, 'Traiteur', 'Service de qualité pour vos événements', 'avatars/default.jpeg', 'Besoin d''une scène et d''équipement audio fourni', 'Prix par événement', 500, 5, 10, 500, 10, 24),
+(1, 'Animateur', 'Service de qualité pour vos événements', 'avatars/default.jpeg', 'Besoin d''une scène et d''équipement audio fourni', 'Prix par événement', 500, 5, 10, 500, 10, 24),
+(1, 'Chanteur', 'Service de qualité pour vos événements', 'avatars/default.jpeg', 'Besoin d''une scène et d''équipement audio fourni', 'Prix par événement', 500, 5, 10, 500, 10, 24),

@@ -18,7 +18,7 @@ class AvailabilityController extends Controller
     {
         // Récupération des disponibilités de l'utilisateur authentifié
         //$availabilities = auth()->user()->availabilities;
-        $availabilities = Availability::query()->orderBy('availability', 'asc')->get();
+        $availabilities = Availability::query()->orderBy('dateTime', 'asc')->get();
         //dd($availabilities);
 
         return response()->json($availabilities);

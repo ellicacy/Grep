@@ -67,7 +67,8 @@ const rechercherDisponibilites = async (nextDate) => {
     const usersData = usersResponse.data.data;
 
     console.log('Disponibilités trouvées:', allAvailabilities);
-    console.log('recheerche trouvées:', typeRecherche);
+    console.log('recherche trouvées:', typeRecherche);
+    
     console.log('ttire presta:', prestations.nom);
     // Filtrer les disponibilités en fonction des critères de recherche
     const filteredAvailabilities = allAvailabilities.filter(availability => {
@@ -97,7 +98,7 @@ const rechercherDisponibilites = async (nextDate) => {
        if (dateRecherche !== "" && typeRecherche !== "") {
         const selectedDate = new Date(dateRecherche);
         const availabilityDate = convertToUserTimezone(availability.dateTime);
-        if (availabilityDate.setHours(0, 0, 0, 0) !== selectedDate.setHours(0, 0, 0, 0)&& prestations.find(prestation => prestation.nom === typeRecherche).id !== availability.idPrestation) {
+        if (availabilityDate.setHours(0, 0, 0, 0) !== selectedDate.setHours(0, 0, 0, 0)&& prestations.find(prestation => prestation.nom.toLowerCase() === typeRecherche.toLowerCase()).id !== availability.idPrestation) {
           return false;
         }
   
@@ -116,7 +117,7 @@ const rechercherDisponibilites = async (nextDate) => {
       // Vérifier si le type de la disponibilité correspond au type de recherche
       if (typeRecherche !== "") {
         // recuperer toutes les prestations avec le type de recherche
-        const prestationsRecherche = prestations.filter(prestation => prestation.nom === typeRecherche);
+        const prestationsRecherche = prestations.filter(prestation => prestation.nom.toLowerCase() === typeRecherche.toLocaleLowerCase());
         // Vérifier si la disponibilité correspond à l'une des prestations trouvées
         if (!prestationsRecherche.find(prestation => prestation.id === availability.idPrestation)) {
           return false;

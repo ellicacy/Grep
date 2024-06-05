@@ -53,7 +53,7 @@ export default function Header() {
         >
           <Grid item container height={80} alignItems="center">
             <Grid item xs={2}>
-              <Link href="/" style={{ fontWeight: 700, fontSize: "18px", textDecoration: 'none' }}>Sparkling</Link>
+              <Link href="/" style={{ fontWeight: 700, fontSize: "18px", textDecoration: 'none' }}>Moments Events</Link>
             </Grid>
             {!mobileHeader && (
               <Grid item container direction="row" xs justifyContent="flex-start" alignItems="center">
